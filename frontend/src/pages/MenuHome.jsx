@@ -13,16 +13,14 @@ import { getMenuItems } from "../services/api";
 
 /* =========================================================
    VISUAL SYSTEM — Ethiopian coffee-house, "menu board" look
-   Add these two lines to your index.html <head> if you don't
-   already load them elsewhere:
-
-   <link rel="preconnect" href="https://fonts.googleapis.com">
-   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@500&family=General+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
    Palette:
-   #FBF3E7 parchment (page bg)   #1F140D ink (headlines/body)
-   #6B564A taupe (muted text)     #B5502D ember (primary accent)
-   #C89550 gold (dividers/price)  #3A281F bark (dark surfaces)
+   #FBF3E7 parchment
+   #1F140D ink
+   #6B564A taupe
+   #B5502D ember
+   #C89550 gold
+   #3A281F bark
 ========================================================= */
 
 function MenuHome() {
@@ -32,9 +30,14 @@ function MenuHome() {
      MENU STATE
   ========================= */
 
-  const [menuItems, setMenuItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [menuItems, setMenuItems] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
 
   /* =========================
      FILTER STATE
@@ -43,12 +46,14 @@ function MenuHome() {
   const [selectedCategory, setSelectedCategory] =
     useState("all");
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] =
+    useState("");
 
   const [selectedItem, setSelectedItem] =
     useState(null);
 
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] =
+    useState([]);
 
   const [filterOpen, setFilterOpen] =
     useState(false);
@@ -66,9 +71,12 @@ function MenuHome() {
         setLoading(true);
         setError("");
 
-        const response = await getMenuItems();
+        const response =
+          await getMenuItems();
 
-        setMenuItems(response.data || []);
+        setMenuItems(
+          response.data || []
+        );
       } catch (error) {
         console.error(
           "Failed to load menu:",
@@ -95,7 +103,8 @@ function MenuHome() {
     setFavorites((current) =>
       current.includes(id)
         ? current.filter(
-            (itemId) => itemId !== id
+            (itemId) =>
+              itemId !== id
           )
         : [...current, id]
     );
@@ -109,7 +118,10 @@ function MenuHome() {
     return [
       ...new Set(
         menuItems
-          .map((item) => item.category)
+          .map(
+            (item) =>
+              item.category
+          )
           .filter(Boolean)
       ),
     ];
@@ -129,7 +141,8 @@ function MenuHome() {
 
       const matchesCategory =
         selectedCategory === "all" ||
-        item.category === selectedCategory;
+        item.category ===
+          selectedCategory;
 
       /* SEARCH */
 
@@ -152,27 +165,39 @@ function MenuHome() {
 
       const matchesSearch =
         !query ||
-        searchableText.includes(query);
+        searchableText.includes(
+          query
+        );
 
       /* FILTERS */
 
       const matchesFilters =
-        selectedFilters.every((filter) => {
-          if (filter === "available") {
-            return (
-              item.availability ===
+        selectedFilters.every(
+          (filter) => {
+            if (
+              filter ===
               "available"
-            );
-          }
+            ) {
+              return (
+                item.availability ===
+                "available"
+              );
+            }
 
-          if (filter === "popular") {
-            return item.tags?.includes(
+            if (
+              filter ===
               "popular"
+            ) {
+              return item.tags?.includes(
+                "popular"
+              );
+            }
+
+            return item.tags?.includes(
+              filter
             );
           }
-
-          return item.tags?.includes(filter);
-        });
+        );
 
       return (
         matchesCategory &&
@@ -205,14 +230,17 @@ function MenuHome() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#FBF3E7]">
         <div className="text-center">
+
           <div className="relative mx-auto h-14 w-14">
             <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-[#E4D3BE] border-t-[#B5502D]" />
+
             <div className="absolute inset-[6px] rounded-full bg-[#FBF3E7]" />
           </div>
 
           <p className="mt-5 [font-family:'IBM_Plex_Mono',monospace] text-[11px] uppercase tracking-[0.2em] text-[#6B564A]">
             Brewing the menu
           </p>
+
         </div>
       </div>
     );
@@ -225,8 +253,11 @@ function MenuHome() {
   if (error) {
     return (
       <div className="min-h-screen bg-[#FBF3E7] px-5">
+
         <div className="mx-auto flex min-h-screen max-w-md items-center justify-center">
+
           <div className="w-full rounded-[4px] border border-[#E4D3BE] bg-white/70 p-9 text-center shadow-[0_1px_0_#fff_inset]">
+
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[#C89550]/50 text-2xl">
               ☕
             </div>
@@ -244,12 +275,15 @@ function MenuHome() {
               onClick={() =>
                 window.location.reload()
               }
-              className="mt-6 rounded-[3px] bg-[#B5502D] px-6 py-3 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-[#9c4324]"
+              className="mt-6 rounded-[3px] bg-[#B5502D] px-6 py-3 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-[#9C4324]"
             >
               Try Again
             </button>
+
           </div>
+
         </div>
+
       </div>
     );
   }
@@ -259,13 +293,13 @@ function MenuHome() {
 
       <Header />
 
-      <main className="mx-auto max-w-5xl px-5 pb-28 sm:px-8">
+      <main className="mx-auto max-w-6xl px-4 pb-28 sm:px-6 lg:px-8">
 
         {/* =========================
             SEARCH
         ========================= */}
 
-        <section className="pt-6 sm:pt-8">
+        <section className="pt-5 sm:pt-8">
           <SearchBar
             value={search}
             onChange={setSearch}
@@ -281,7 +315,9 @@ function MenuHome() {
 
         <Hero
           onSpecialsClick={() =>
-            setSelectedCategory("coffee")
+            setSelectedCategory(
+              "coffee"
+            )
           }
         />
 
@@ -303,7 +339,8 @@ function MenuHome() {
             ACTIVE FILTERS
         ========================= */}
 
-        {selectedFilters.length > 0 && (
+        {selectedFilters.length >
+          0 && (
           <div className="mt-6 flex items-center gap-2 overflow-x-auto border-b border-dashed border-[#C89550]/40 pb-4">
 
             <span className="shrink-0 [font-family:'IBM_Plex_Mono',monospace] text-[10px] uppercase tracking-[0.18em] text-[#6B564A]">
@@ -328,52 +365,70 @@ function MenuHome() {
         )}
 
         {/* =========================
-            POPULAR — spotlight rail, not a grid
+            POPULAR
+            HORIZONTAL SPOTLIGHT
         ========================= */}
 
         {!search &&
-          selectedCategory === "all" &&
-          selectedFilters.length === 0 &&
+          selectedCategory ===
+            "all" &&
+          selectedFilters.length ===
+            0 &&
           popularItems.length > 0 && (
-
-            <section className="mt-11">
+            <section className="mt-10 sm:mt-11">
 
               <SectionLabel
                 eyebrow="Customer favorites"
                 title={t("popular")}
               />
 
-             <div className="no-scrollbar -mx-5 flex gap-5 overflow-x-auto px-5 pb-4 sm:-mx-8 sm:px-8">
-  {popularItems.map((item, index) => (
-    <div key={item._id} className="w-[290px] shrink-0 sm:w-[320px]">
-      <MenuCard
-        item={item}
-        onSelect={setSelectedItem}
-        isFavorite={favorites.includes(item._id)}
-        onToggleFavorite={toggleFavorite}
-        variant="feature"
-        rank={index + 1}
-      />
-    </div>
-  ))}
-</div>
+              <div className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 pb-4 sm:-mx-6 sm:gap-5 sm:px-6 lg:-mx-8 lg:px-8">
+
+                {popularItems.map(
+                  (item, index) => (
+                    <div
+                      key={item._id}
+                      className="w-[270px] shrink-0 sm:w-[310px]"
+                    >
+                      <MenuCard
+                        item={item}
+                        onSelect={
+                          setSelectedItem
+                        }
+                        isFavorite={favorites.includes(
+                          item._id
+                        )}
+                        onToggleFavorite={
+                          toggleFavorite
+                        }
+                        variant="feature"
+                        rank={index + 1}
+                      />
+                    </div>
+                  )
+                )}
+
+              </div>
 
             </section>
           )}
 
         {/* =========================
-            MENU — editorial list, no grid
+            MAIN MENU
+            COMPACT VERTICAL GRID
         ========================= */}
 
-        <section className="mt-12">
+        <section className="mt-10 sm:mt-12">
 
           <SectionLabel
             eyebrow="Freshly prepared"
             title={
               search ||
-              selectedFilters.length > 0
+              selectedFilters.length >
+                0
                 ? `${filteredItems.length} ${
-                    filteredItems.length === 1
+                    filteredItems.length ===
+                    1
                       ? "result"
                       : "results"
                   }`
@@ -381,9 +436,20 @@ function MenuHome() {
             }
           />
 
-          {filteredItems.length > 0 ? (
+          {filteredItems.length >
+          0 ? (
 
-            <div className="divide-y divide-[#E4D3BE] border-t border-[#E4D3BE]">
+            <div
+              className="
+                grid
+                grid-cols-1
+                gap-3
+                sm:grid-cols-2
+                sm:gap-4
+                lg:grid-cols-3
+                lg:gap-5
+              "
+            >
 
               {filteredItems.map(
                 (item) => (
@@ -399,7 +465,7 @@ function MenuHome() {
                     onToggleFavorite={
                       toggleFavorite
                     }
-                    variant="row"
+                    variant="compact"
                   />
                 )
               )}
@@ -415,8 +481,9 @@ function MenuHome() {
               </h3>
 
               <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[#6B564A]">
-                Try changing your search,
-                category, or filters.
+                Try changing your
+                search, category, or
+                filters.
               </p>
 
               <button
@@ -426,9 +493,11 @@ function MenuHome() {
                   setSelectedCategory(
                     "all"
                   );
-                  setSelectedFilters([]);
+                  setSelectedFilters(
+                    []
+                  );
                 }}
-                className="mt-5 rounded-[3px] bg-[#B5502D] px-5 py-2.5 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-[#9c4324]"
+                className="mt-5 rounded-[3px] bg-[#B5502D] px-5 py-2.5 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-[#9C4324]"
               >
                 Clear Everything
               </button>
@@ -487,21 +556,32 @@ function MenuHome() {
 }
 
 /* =========================================================
-   Small local presentational helper — a section heading with
-   a gold hairline rule, styled like a menu-board header.
+   SECTION LABEL
 ========================================================= */
-function SectionLabel({ eyebrow, title }) {
+
+function SectionLabel({
+  eyebrow,
+  title,
+}) {
   return (
     <div className="mb-5 flex items-end justify-between gap-4 border-b border-[#C89550]/40 pb-3">
+
       <div>
+
         <p className="mb-1 [font-family:'IBM_Plex_Mono',monospace] text-[10px] uppercase tracking-[0.22em] text-[#B5502D]">
           {eyebrow}
         </p>
+
         <h2 className="[font-family:'Fraunces',serif] text-[26px] font-semibold leading-none text-[#1F140D]">
           {title}
         </h2>
+
       </div>
-      <span className="hidden shrink-0 text-[#C89550] sm:block">⁘</span>
+
+      <span className="hidden shrink-0 text-[#C89550] sm:block">
+        ⁘
+      </span>
+
     </div>
   );
 }

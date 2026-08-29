@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { Heart, Leaf, CircleDot, Flame, Sparkles, ChevronRight } from "lucide-react";
+import {
+  Heart,
+  Leaf,
+  CircleDot,
+  Flame,
+  Sparkles,
+  ChevronRight,
+} from "lucide-react";
+
 import { useLanguage } from "../context/LanguageContext";
 
 function MenuCard({
@@ -11,7 +19,13 @@ function MenuCard({
   rank,
 }) {
   const { language } = useLanguage();
-  const [imageFailed, setImageFailed] = useState(false);
+
+  const [imageFailed, setImageFailed] =
+    useState(false);
+
+  /* =========================================================
+     LOCALIZED CONTENT
+  ========================================================= */
 
   const name =
     item.name?.[language] ||
@@ -27,20 +41,45 @@ function MenuCard({
     item.description?.om ||
     "";
 
-  const price = item.price ?? item.priceETB ?? null;
+  const price =
+    item.price ??
+    item.priceETB ??
+    null;
 
-  const isAvailable = item.availability === "available";
-  const isPopular = item.tags?.includes("popular");
-  const isNew = item.tags?.includes("new");
-  const showImage = item.image && !imageFailed;
+  /* =========================================================
+     ITEM STATUS
+  ========================================================= */
+
+  const isAvailable =
+    item.availability === "available";
+
+  const isPopular =
+    item.tags?.includes("popular");
+
+  const isNew =
+    item.tags?.includes("new");
+
+  const isVegetarian =
+    item.tags?.includes("vegetarian");
+
+  const showImage =
+    item.image && !imageFailed;
+
+  /* =========================================================
+     ACTIONS
+  ========================================================= */
 
   const handleSelect = () => {
     if (!isAvailable) return;
+
     onSelect(item);
   };
 
   const handleCardKeyDown = (event) => {
-    if (event.key === "Enter" || event.key === " ") {
+    if (
+      event.key === "Enter" ||
+      event.key === " "
+    ) {
       event.preventDefault();
       handleSelect();
     }
@@ -48,35 +87,51 @@ function MenuCard({
 
   const handleFavorite = (event) => {
     event.stopPropagation();
+
     onToggleFavorite(item._id);
   };
 
-  const FavoriteButton = ({ className }) => (
+  /* =========================================================
+     FAVORITE BUTTON
+  ========================================================= */
+
+  const FavoriteButton = ({
+    className = "",
+    dark = false,
+  }) => (
     <button
       type="button"
       onClick={handleFavorite}
       aria-label={
-        isFavorite ? "Remove from favorites" : "Add to favorites"
+        isFavorite
+          ? "Remove from favorites"
+          : "Add to favorites"
       }
       aria-pressed={isFavorite}
       className={className}
     >
       <Heart
-        size={variant === "feature" ? 18 : 20}
+        size={
+          variant === "feature"
+            ? 18
+            : 17
+        }
         className={`transition-all duration-300 ${
           isFavorite
-            ? "fill-[#8b4f2f] text-[#8b4f2f] scale-110"
-            : variant === "feature"
+            ? "scale-110 fill-[#B5502D] text-[#B5502D]"
+            : dark
               ? "text-white/80 hover:text-white"
-              : "text-[#a27a60] hover:text-[#8b4f2f]"
+              : "text-[#A27A60] hover:text-[#B5502D]"
         }`}
       />
     </button>
   );
 
   /* =========================================================
-     FEATURE VARIANT — Spotlight card for popular rail
+     FEATURE VARIANT
+     Large spotlight card used for popular items.
   ========================================================= */
+
   if (variant === "feature") {
     return (
       <div
@@ -86,81 +141,103 @@ function MenuCard({
         aria-disabled={!isAvailable}
         onClick={handleSelect}
         onKeyDown={handleCardKeyDown}
-        className={`group relative flex h-[380px] w-full flex-col overflow-hidden rounded-3xl border border-[#eadfd6] bg-white text-left shadow-md transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-[#8b4f2f] ${
+        className={`group relative flex h-[360px] w-full flex-col overflow-hidden rounded-[26px] border border-[#E4D3BE] bg-white text-left shadow-sm outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-[#B5502D] ${
           isAvailable
-            ? "cursor-pointer hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#8b4f2f]/10"
+            ? "cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:shadow-[#8b4f2f]/10"
             : "cursor-not-allowed opacity-60"
         }`}
       >
-        {/* Top Image / Visual Display */}
-        <div className="relative h-[220px] w-full overflow-hidden bg-[#faf7f2]">
+        {/* IMAGE */}
+
+        <div className="relative h-[205px] w-full shrink-0 overflow-hidden bg-[#EFE5DC]">
           {showImage ? (
             <img
               src={item.image}
               alt={name}
               loading="lazy"
-              onError={() => setImageFailed(true)}
+              onError={() =>
+                setImageFailed(true)
+              }
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#efe5dc] to-[#eadfd6] text-5xl shadow-inner">
-              {item.category === "coffee" ? "☕" : "🍽"}
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#EFE5DC] to-[#E4D3BE] text-5xl">
+              {item.category === "coffee"
+                ? "☕"
+                : "🍽"}
             </div>
           )}
 
-          {/* Vignette Overlay */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+          {/* IMAGE OVERLAY */}
 
-          {/* Floating Rank Badge */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-black/20" />
+
+          {/* RANK */}
+
           {typeof rank === "number" && (
-            <span className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-md font-mono text-xs font-semibold text-white shadow-sm">
-              #{String(rank).padStart(2, "0")}
+            <span className="absolute left-4 top-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-black/35 font-mono text-[10px] font-semibold text-white backdrop-blur-md">
+              #{String(rank).padStart(
+                2,
+                "0"
+              )}
             </span>
           )}
 
-          {/* Favorite Button */}
-          <FavoriteButton className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 backdrop-blur-md transition-transform duration-200 hover:scale-110 hover:bg-white shadow-sm" />
+          {/* FAVORITE */}
 
-          {/* Badges / Availability */}
+          <FavoriteButton
+            dark
+            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 shadow-sm backdrop-blur-md transition-transform duration-200 hover:scale-110"
+          />
+
+          {/* PRICE */}
+
           {!isAvailable ? (
-            <span className="absolute bottom-3.5 left-4 rounded-full bg-black/70 px-3.5 py-1 text-xs font-medium uppercase tracking-wider text-white backdrop-blur-sm">
+            <span className="absolute bottom-3 left-4 rounded-full bg-black/70 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-sm">
               Sold out
             </span>
           ) : (
             price != null && (
-              <span className="absolute bottom-3.5 left-4 rounded-full bg-white/95 px-3.5 py-1.5 font-mono text-sm font-bold text-[#3a2418] shadow-sm backdrop-blur-sm">
+              <span className="absolute bottom-3 left-4 rounded-full bg-white/95 px-3 py-1.5 font-mono text-sm font-bold text-[#3A2818] shadow-sm">
                 {price} ETB
               </span>
             )
           )}
         </div>
 
-        {/* Content Details */}
-        <div className="flex flex-1 flex-col justify-between p-5 bg-gradient-to-b from-white to-[#faf7f2]/50">
+        {/* CONTENT */}
+
+        <div className="flex min-h-0 flex-1 flex-col justify-between bg-gradient-to-b from-white to-[#FAF7F2] p-4">
           <div>
             <div className="flex items-start justify-between gap-2">
-              <h3 className="font-serif text-xl font-bold leading-snug text-[#3a2418] group-hover:text-[#8b4f2f] transition-colors">
+              <h3 className="line-clamp-1 font-serif text-lg font-bold leading-snug text-[#3A2818] transition-colors group-hover:text-[#B5502D]">
                 {name}
               </h3>
+
               {isNew && (
-                <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-full bg-[#8b4f2f]/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-[#8b4f2f]">
-                  <Sparkles size={11} /> New
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#B5502D]/10 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-[#B5502D]">
+                  <Sparkles size={10} />
+                  New
                 </span>
               )}
             </div>
+
             {description && (
-              <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[#81736a]">
+              <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-[#6B564A]">
                 {description}
               </p>
             )}
           </div>
 
-          <div className="mt-4 flex items-center justify-between pt-3 border-t border-[#eadfd6]/60">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#a27a60]">
-              {item.category || "Specialty"}
+          <div className="mt-3 flex items-center justify-between border-t border-[#E4D3BE]/70 pt-2.5">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#A27A60]">
+              {item.category ||
+                "Specialty"}
             </span>
-            <span className="flex items-center gap-1 text-sm font-semibold text-[#8b4f2f] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-              View <ChevronRight size={15} />
+
+            <span className="flex items-center gap-1 text-xs font-semibold text-[#B5502D] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              View
+              <ChevronRight size={13} />
             </span>
           </div>
         </div>
@@ -169,8 +246,139 @@ function MenuCard({
   }
 
   /* =========================================================
-     ROW VARIANT — Main list item view
+     COMPACT VARIANT
+     Main vertical menu grid.
+
+     Small image:
+     Mobile: 72px
+     Desktop: 92px
   ========================================================= */
+
+  if (variant === "compact") {
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label={name}
+        aria-disabled={!isAvailable}
+        onClick={handleSelect}
+        onKeyDown={handleCardKeyDown}
+        className={`group relative flex w-full items-center gap-3 rounded-[20px] border border-[#E4D3BE] bg-white p-3 text-left shadow-sm outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-[#B5502D] sm:gap-4 sm:rounded-[22px] sm:p-3.5 ${
+          isAvailable
+            ? "cursor-pointer hover:-translate-y-0.5 hover:border-[#B5502D]/25 hover:shadow-lg hover:shadow-[#8B4F2F]/8"
+            : "cursor-not-allowed opacity-55"
+        }`}
+      >
+        {/* IMAGE */}
+
+        <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-[16px] border border-[#E4D3BE] bg-[#FAF7F2] sm:h-[92px] sm:w-[92px] sm:rounded-[18px]">
+          {showImage ? (
+            <img
+              src={item.image}
+              alt={name}
+              loading="lazy"
+              onError={() =>
+                setImageFailed(true)
+              }
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#EFE5DC] to-[#E4D3BE] text-2xl sm:text-3xl">
+              {item.category === "coffee"
+                ? "☕"
+                : "🍽"}
+            </div>
+          )}
+
+          {/* POPULAR BADGE */}
+
+          {isPopular && (
+            <span
+              title="Customer favorite"
+              className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-[#B5502D] text-white shadow-sm"
+            >
+              <Flame size={9} />
+            </span>
+          )}
+        </div>
+
+        {/* CONTENT */}
+
+        <div className="min-w-0 flex-1 self-stretch py-0.5">
+          <div className="flex h-full flex-col justify-between">
+            {/* TOP */}
+
+            <div>
+              <div className="flex items-start gap-1.5">
+                <h3 className="min-w-0 flex-1 truncate font-serif text-[15px] font-bold leading-snug text-[#3A2818] transition-colors group-hover:text-[#B5502D] sm:text-base">
+                  {name}
+                </h3>
+
+                {isNew && (
+                  <span className="inline-flex shrink-0 items-center gap-0.5 rounded-full bg-[#B5502D]/10 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide text-[#B5502D] sm:px-2 sm:text-[9px]">
+                    <Sparkles size={8} />
+                    New
+                  </span>
+                )}
+              </div>
+
+              {description && (
+                <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[#6B564A] sm:text-xs sm:leading-5">
+                  {description}
+                </p>
+              )}
+            </div>
+
+            {/* BOTTOM */}
+
+            <div className="mt-2 flex items-end justify-between gap-2">
+              <div className="flex min-w-0 flex-col gap-1">
+                <span className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-[#A27A60] sm:text-[10px]">
+                  {item.category ||
+                    "Specialty"}
+                </span>
+
+                {isVegetarian && (
+                  <span className="inline-flex items-center gap-1 text-[9px] font-medium text-emerald-700 sm:text-[10px]">
+                    <Leaf size={10} />
+                    Vegetarian
+                  </span>
+                )}
+
+                {!isAvailable && (
+                  <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-amber-800 sm:text-[10px]">
+                    <CircleDot size={9} />
+                    Sold out
+                  </span>
+                )}
+              </div>
+
+              <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+                {price != null && (
+                  <span className="rounded-lg bg-[#B5502D]/5 px-2 py-1 font-mono text-[11px] font-bold text-[#B5502D] sm:rounded-xl sm:px-2.5 sm:py-1.5 sm:text-xs">
+                    {price}
+                    <span className="ml-0.5 text-[8px] font-normal sm:text-[9px]">
+                      ETB
+                    </span>
+                  </span>
+                )}
+
+                <FavoriteButton
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E4D3BE] bg-white transition-all duration-200 hover:border-[#B5502D]/30 hover:bg-[#FAF7F2] sm:h-9 sm:w-9"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* =========================================================
+     ROW VARIANT
+     Preserved for other screens/usages.
+  ========================================================= */
+
   return (
     <div
       role="button"
@@ -179,83 +387,94 @@ function MenuCard({
       aria-disabled={!isAvailable}
       onClick={handleSelect}
       onKeyDown={handleCardKeyDown}
-      className={`group relative flex w-full items-center justify-between gap-5 rounded-2xl border border-[#eadfd6]/80 bg-white p-5 shadow-sm text-left outline-none transition-all duration-300 ${
+      className={`group relative flex w-full items-center justify-between gap-4 rounded-2xl border border-[#E4D3BE]/80 bg-white p-4 text-left shadow-sm outline-none transition-all duration-300 sm:gap-5 sm:p-5 ${
         isAvailable
-          ? "cursor-pointer hover:border-[#8b4f2f]/30 hover:bg-[#faf7f2]/40 hover:shadow-md"
+          ? "cursor-pointer hover:border-[#B5502D]/30 hover:bg-[#FAF7F2]/40 hover:shadow-md"
           : "cursor-not-allowed opacity-55"
       }`}
     >
-      <div className="flex items-center gap-5 min-w-0 flex-1">
-        {/* Thumbnail Display */}
-        <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#eadfd6] bg-[#faf7f2]">
+      <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-5">
+        {/* THUMBNAIL */}
+
+        <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#E4D3BE] bg-[#FAF7F2] sm:h-20 sm:w-20">
           {showImage ? (
             <img
               src={item.image}
               alt={name}
               loading="lazy"
-              onError={() => setImageFailed(true)}
+              onError={() =>
+                setImageFailed(true)
+              }
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
-            <span className="text-3xl">
-              {item.category === "coffee" ? "☕" : "🍽"}
+            <span className="text-2xl sm:text-3xl">
+              {item.category === "coffee"
+                ? "☕"
+                : "🍽"}
             </span>
           )}
 
           {isPopular && (
-            <span
-              title="Customer favorite"
-              className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-[#8b4f2f] text-white shadow-sm"
-            >
-              <Flame size={12} />
+            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-white bg-[#B5502D] text-white shadow-sm">
+              <Flame size={9} />
             </span>
           )}
         </div>
 
-        {/* Text & Metadata */}
+        {/* TEXT */}
+
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-serif text-lg font-bold text-[#3a2418] truncate group-hover:text-[#8b4f2f] transition-colors">
+            <h3 className="truncate font-serif text-base font-bold text-[#3A2818] transition-colors group-hover:text-[#B5502D] sm:text-lg">
               {name}
             </h3>
 
             {isNew && (
-              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#8b4f2f]/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-[#8b4f2f]">
-                <Sparkles size={11} /> New
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#B5502D]/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#B5502D]">
+                <Sparkles size={9} />
+                New
               </span>
             )}
           </div>
 
           {description && (
-            <p className="mt-1 line-clamp-1 text-sm leading-relaxed text-[#81736a]">
+            <p className="mt-1 line-clamp-1 text-xs leading-relaxed text-[#6B564A] sm:text-sm">
               {description}
             </p>
           )}
 
-          <div className="mt-2.5 flex items-center gap-3">
-            {item.tags?.includes("vegetarian") && (
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-700">
-                <Leaf size={13} /> Vegetarian
+          <div className="mt-2 flex items-center gap-3">
+            {isVegetarian && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 sm:text-xs">
+                <Leaf size={11} />
+                Vegetarian
               </span>
             )}
+
             {!isAvailable && (
-              <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-amber-800">
-                <CircleDot size={12} /> Sold out
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-amber-800 sm:text-xs">
+                <CircleDot size={10} />
+                Sold out
               </span>
             )}
           </div>
         </div>
       </div>
 
-      {/* Pricing & Favorite Controls */}
-      <div className="flex shrink-0 items-center gap-4 pl-2">
+      {/* PRICE + FAVORITE */}
+
+      <div className="flex shrink-0 items-center gap-2 sm:gap-4">
         {price != null && (
-          <span className="font-mono text-base font-bold text-[#8b4f2f] bg-[#8b4f2f]/5 px-3 py-1.5 rounded-xl">
-            {price} <span className="text-xs font-normal">ETB</span>
+          <span className="rounded-xl bg-[#B5502D]/5 px-2 py-1 font-mono text-xs font-bold text-[#B5502D] sm:px-3 sm:py-1.5 sm:text-sm">
+            {price}
+            <span className="ml-1 text-[9px] font-normal">
+              ETB
+            </span>
           </span>
         )}
 
-        <FavoriteButton className="flex h-10 w-10 items-center justify-center rounded-full border border-[#eadfd6] bg-white transition-all duration-200 hover:border-[#8b4f2f]/30 hover:bg-[#faf7f2] hover:shadow-sm" />
+        <FavoriteButton className="flex h-9 w-9 items-center justify-center rounded-full border border-[#E4D3BE] bg-white transition-all duration-200 hover:border-[#B5502D]/30 hover:bg-[#FAF7F2] hover:shadow-sm sm:h-10 sm:w-10" />
       </div>
     </div>
   );
