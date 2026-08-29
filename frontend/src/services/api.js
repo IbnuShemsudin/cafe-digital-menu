@@ -27,19 +27,14 @@ const request = async (endpoint, options = {}) => {
   /*
    IMPORTANT:
    Do NOT manually set Content-Type for FormData.
-   Browser must create the multipart boundary.
-
-   Our current menu system uses JSON, including Base64
-   device images, so normal JSON requests will still work.
+   The browser creates the multipart boundary.
   */
   if (!isFormData) {
-    headers["Content-Type"] =
-      "application/json";
+    headers["Content-Type"] = "application/json";
   }
 
   if (token) {
-    headers.Authorization =
-      `Bearer ${token}`;
+    headers.Authorization = `Bearer ${token}`;
   }
 
   let response;
@@ -53,36 +48,29 @@ const request = async (endpoint, options = {}) => {
       }
     );
   } catch (error) {
-    console.error(
-      "API connection error:",
-      error
-    );
+    console.error("API connection error:", error);
 
     throw new Error(
-      "Cannot connect to the backend server. Make sure the server is running on http://localhost:5000."
+      `Cannot connect to the backend server at ${API_URL}.`
     );
   }
 
   /*
    Handle empty responses safely.
   */
+
   const contentType =
-    response.headers.get(
-      "content-type"
-    ) || "";
+    response.headers.get("content-type") || "";
 
   let data;
 
   try {
     if (
-      contentType.includes(
-        "application/json"
-      )
+      contentType.includes("application/json")
     ) {
       data = await response.json();
     } else {
-      const text =
-        await response.text();
+      const text = await response.text();
 
       data = text
         ? { message: text }
@@ -136,105 +124,104 @@ export const adminLogin = async (
 
 /* GET ALL MENU ITEMS */
 
-export const getMenuItems =
-  async (params = {}) => {
-    const query =
-      new URLSearchParams();
+export const getMenuItems = async (
+  params = {}
+) => {
+  const query =
+    new URLSearchParams();
 
-    if (
-      params.category &&
-      params.category !== "all"
-    ) {
-      query.set(
-        "category",
-        params.category
-      );
-    }
-
-    if (
-      params.availability &&
-      params.availability !== "all"
-    ) {
-      query.set(
-        "availability",
-        params.availability
-      );
-    }
-
-    if (params.search) {
-      query.set(
-        "search",
-        params.search
-      );
-    }
-
-    const queryString =
-      query.toString();
-
-    return request(
-      `/menu${
-        queryString
-          ? `?${queryString}`
-          : ""
-      }`
+  if (
+    params.category &&
+    params.category !== "all"
+  ) {
+    query.set(
+      "category",
+      params.category
     );
-  };
+  }
+
+  if (
+    params.availability &&
+    params.availability !== "all"
+  ) {
+    query.set(
+      "availability",
+      params.availability
+    );
+  }
+
+  if (params.search) {
+    query.set(
+      "search",
+      params.search
+    );
+  }
+
+  const queryString =
+    query.toString();
+
+  return request(
+    `/menu${
+      queryString
+        ? `?${queryString}`
+        : ""
+    }`
+  );
+};
 
 /* GET SINGLE MENU ITEM */
 
-export const getMenuItem =
-  async (id) => {
-    return request(
-      `/menu/${id}`
-    );
-  };
+export const getMenuItem = async (
+  id
+) => {
+  return request(
+    `/menu/${id}`
+  );
+};
 
 /* CREATE MENU ITEM */
 
-export const createMenuItem =
-  async (item) => {
-    return request(
-      "/menu",
-      {
-        method: "POST",
+export const createMenuItem = async (
+  item
+) => {
+  return request(
+    "/menu",
+    {
+      method: "POST",
 
-        body: JSON.stringify(
-          item
-        ),
-      }
-    );
-  };
+      body: JSON.stringify(item),
+    }
+  );
+};
 
 /* UPDATE MENU ITEM */
 
-export const updateMenuItem =
-  async (
-    id,
-    item
-  ) => {
-    return request(
-      `/menu/${id}`,
-      {
-        method: "PUT",
+export const updateMenuItem = async (
+  id,
+  item
+) => {
+  return request(
+    `/menu/${id}`,
+    {
+      method: "PUT",
 
-        body: JSON.stringify(
-          item
-        ),
-      }
-    );
-  };
+      body: JSON.stringify(item),
+    }
+  );
+};
 
 /* DELETE MENU ITEM */
 
-export const deleteMenuItem =
-  async (id) => {
-    return request(
-      `/menu/${id}`,
-      {
-        method: "DELETE",
-      }
-    );
-  };
+export const deleteMenuItem = async (
+  id
+) => {
+  return request(
+    `/menu/${id}`,
+    {
+      method: "DELETE",
+    }
+  );
+};
 
 /* =========================================================
    EXPORT API URL
