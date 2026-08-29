@@ -1,48 +1,52 @@
+import dns from "dns";
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
+import cors from "cors";
+
+// =========================================================
+// DNS CONFIGURATION
+// MongoDB Atlas SRV DNS resolution
+// =========================================================
+
+dns.setServers([
+  "8.8.8.8",
+  "1.1.1.1",
+]);
+
+// =========================================================
+// ENVIRONMENT VARIABLES
+// =========================================================
+
+dotenv.config();
+
+// =========================================================
+// DATABASE & ROUTES
+// =========================================================
 
 import connectDB from "./config/db.js";
 import menuRoutes from "./routes/menuRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 
-dotenv.config();
+// =========================================================
+// APP
+// =========================================================
 
 const app = express();
 
-/* =========================================================
-   DATABASE
-========================================================= */
-
-connectDB();
-
-/* =========================================================
-   CORS
-========================================================= */
+// =========================================================
+// CORS
+// =========================================================
 
 app.use(
   cors({
-    origin:
-      process.env.CLIENT_URL ||
-      "http://localhost:5173",
-
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
     credentials: true,
   })
 );
 
-/* =========================================================
-   BODY PARSERS
-========================================================= */
-
-/*
-   IMPORTANT:
-   Device images are converted into Base64 strings.
-
-   A 5 MB image becomes roughly 6–7 MB
-   after Base64 encoding.
-
-   Therefore we need a larger JSON limit.
-*/
+// =========================================================
+// BODY PARSERS
+// =========================================================
 
 app.use(
   express.json({
@@ -57,94 +61,77 @@ app.use(
   })
 );
 
-/* =========================================================
-   ROUTES
-========================================================= */
+// =========================================================
+// HEALTH CHECK
+// =========================================================
 
-app.use(
-  "/api/auth",
-  authRoutes
-);
+app.get("/api/health", (req, res) => {
+  res.json({
+    success: true,
+    message: "Cafe Menu API is running",
+  });
+});
 
-app.use(
-  "/api/menu",
-  menuRoutes
-);
+// =========================================================
+// ROUTES
+// =========================================================
 
-/* =========================================================
-   HEALTH CHECK
-========================================================= */
+app.use("/api/auth", authRoutes);
 
-app.get(
-  "/api/health",
-  (req, res) => {
-    res.json({
-      success: true,
-      message:
-        "Cafe Menu API is running",
-    });
-  }
-);
+app.use("/api/menu", menuRoutes);
 
-/* =========================================================
-   404
-========================================================= */
+// =========================================================
+// 404
+// =========================================================
 
-app.use(
-  (req, res) => {
-    res.status(404).json({
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+  });
+});
+
+// =========================================================
+// GLOBAL ERROR HANDLER
+// =========================================================
+
+app.use((error, req, res, next) => {
+  console.error("Global server error:", error);
+
+  if (error.type === "entity.too.large") {
+    return res.status(413).json({
       success: false,
       message:
-        "Route not found",
+        "The uploaded image is too large. Please choose an image smaller than 5 MB.",
     });
   }
-);
 
-/* =========================================================
-   GLOBAL ERROR HANDLER
-========================================================= */
+  res.status(error.status || 500).json({
+    success: false,
+    message: error.message || "Internal server error",
+  });
+});
 
-app.use(
-  (error, req, res, next) => {
-    console.error(
-      "Global server error:",
-      error
-    );
+// =========================================================
+// START SERVER
+// =========================================================
 
-    if (
-      error.type ===
-      "entity.too.large"
-    ) {
-      return res.status(413).json({
-        success: false,
-        message:
-          "The uploaded image is too large. Please choose an image smaller than 5 MB.",
-      });
-    }
+const PORT = process.env.PORT || 5000;
 
-    res.status(
-      error.status || 500
-    ).json({
-      success: false,
-      message:
-        error.message ||
-        "Internal server error",
+const startServer = async () => {
+  try {
+    // Connect to MongoDB first
+    await connectDB();
+
+    // Start Express only after DB connection succeeds
+    app.listen(PORT, () => {
+      console.log(`Cafe Menu API running on port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
     });
+  } catch (error) {
+    console.error("Server startup failed:", error.message);
+    process.exit(1);
   }
-);
+};
 
-/* =========================================================
-   START SERVER
-========================================================= */
-
-const PORT =
-  process.env.PORT || 5000;
-
-app.listen(
-  PORT,
-  () => {
-    console.log(
-      `Cafe Menu API running on http://localhost:${PORT}`
-    );
-  }
-);
+startServer();
