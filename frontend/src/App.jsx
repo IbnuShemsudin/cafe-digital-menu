@@ -8,11 +8,11 @@ import {
 import MenuHome from "./pages/MenuHome";
 
 import AdminLogin from "./pages/admin/AdminLogin";
+import AdminRegister from "./pages/admin/AdminRegister";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminMenu from "./pages/admin/AdminMenu";
 
 import { useAuth } from "./context/AuthContext";
-
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +25,7 @@ function ProtectedAdminRoute({ children }) {
 
   /*
   |--------------------------------------------------------------------------
-  | Authentication Loading
+  | Loading
   |--------------------------------------------------------------------------
   */
 
@@ -52,15 +52,8 @@ function ProtectedAdminRoute({ children }) {
     );
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Authenticated
-  |--------------------------------------------------------------------------
-  */
-
   return children;
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -71,7 +64,6 @@ function ProtectedAdminRoute({ children }) {
 function App() {
   return (
     <BrowserRouter>
-
       <Routes>
 
         {/* =====================================================
@@ -83,7 +75,6 @@ function App() {
           element={<MenuHome />}
         />
 
-
         {/* =====================================================
             ADMIN LOGIN
         ===================================================== */}
@@ -93,6 +84,14 @@ function App() {
           element={<AdminLogin />}
         />
 
+        {/* =====================================================
+            ADMIN REGISTER
+        ===================================================== */}
+
+        <Route
+          path="/admin/register"
+          element={<AdminRegister />}
+        />
 
         {/* =====================================================
             ADMIN DASHBOARD
@@ -107,7 +106,9 @@ function App() {
           }
         />
 
-        {/* Keep old dashboard URL working */}
+        {/* =====================================================
+            OLD DASHBOARD URL
+        ===================================================== */}
 
         <Route
           path="/admin/dashboard"
@@ -118,7 +119,6 @@ function App() {
             />
           }
         />
-
 
         {/* =====================================================
             ADMIN MENU
@@ -133,9 +133,8 @@ function App() {
           }
         />
 
-
         {/* =====================================================
-            FUTURE ADMIN PAGES
+            ADMIN CATEGORIES
         ===================================================== */}
 
         <Route
@@ -147,6 +146,10 @@ function App() {
           }
         />
 
+        {/* =====================================================
+            ADMIN SETTINGS
+        ===================================================== */}
+
         <Route
           path="/admin/settings"
           element={
@@ -155,7 +158,6 @@ function App() {
             </ProtectedAdminRoute>
           }
         />
-
 
         {/* =====================================================
             UNKNOWN ROUTES
@@ -172,11 +174,9 @@ function App() {
         />
 
       </Routes>
-
     </BrowserRouter>
   );
 }
-
 
 /*
 |--------------------------------------------------------------------------

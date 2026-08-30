@@ -7,9 +7,8 @@ const API_URL =
 ========================================================= */
 
 const getToken = () => {
-  return localStorage.getItem("adminToken");
+  return localStorage.getItem("cafe_token");
 };
-
 /* =========================================================
    REQUEST HELPER
 ========================================================= */
