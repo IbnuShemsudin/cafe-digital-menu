@@ -1,69 +1,136 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
 import { translations } from "../data/translations";
 
 const LanguageContext = createContext();
 
-const supportedLanguages = ["en", "am", "om"];
+const supportedLanguages = ["am", "en", "om"];
 
-const detectBrowserLanguage = () => {
-  const browserLanguage = navigator.language?.toLowerCase() || "en";
+// =========================================================
+// DEFAULT LANGUAGE
+// =========================================================
 
-  if (browserLanguage.startsWith("am")) {
-    return "am";
-  }
+const DEFAULT_LANGUAGE = "am";
 
-  if (
-    browserLanguage.startsWith("om") ||
-    browserLanguage.startsWith("or")
-  ) {
-    return "om";
-  }
-
-  return "en";
-};
+// =========================================================
+// LANGUAGE PROVIDER
+// =========================================================
 
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState(() => {
-    const savedLanguage = localStorage.getItem("cafe-language");
+    const savedLanguage =
+      localStorage.getItem("cafe-language");
 
-    if (savedLanguage && supportedLanguages.includes(savedLanguage)) {
+    /*
+    ---------------------------------------------------------
+    If the customer has previously selected a language,
+    restore that language.
+    ---------------------------------------------------------
+    */
+
+    if (
+      savedLanguage &&
+      supportedLanguages.includes(savedLanguage)
+    ) {
       return savedLanguage;
     }
 
-    return detectBrowserLanguage();
+    /*
+    ---------------------------------------------------------
+    New customer/device:
+    DEFAULT = AMHARIC
+    ---------------------------------------------------------
+    */
+
+    return DEFAULT_LANGUAGE;
   });
 
-  useEffect(() => {
-    localStorage.setItem("cafe-language", language);
+  // =======================================================
+  // SAVE LANGUAGE
+  // =======================================================
 
+  useEffect(() => {
+    localStorage.setItem(
+      "cafe-language",
+      language
+    );
+
+    // Set browser document language
     document.documentElement.lang = language;
 
-    if (language === "am") {
-      document.documentElement.dir = "ltr";
-    } else {
-      document.documentElement.dir = "ltr";
-    }
+    // Amharic, English and Afaan Oromoo use LTR
+    document.documentElement.dir = "ltr";
   }, [language]);
 
+  // =======================================================
+  // CHANGE LANGUAGE
+  // =======================================================
+
   const changeLanguage = (newLanguage) => {
-    if (!supportedLanguages.includes(newLanguage)) return;
+    if (
+      !supportedLanguages.includes(
+        newLanguage
+      )
+    ) {
+      return;
+    }
 
     setLanguage(newLanguage);
   };
 
+  // =======================================================
+  // TRANSLATION
+  // =======================================================
+
   const t = (key) => {
-    return translations[language]?.[key] || translations.en[key] || key;
+    return (
+      translations[language]?.[key] ||
+      translations.am?.[key] ||
+      key
+    );
   };
+
+  // =======================================================
+  // LOCALIZED DATABASE TEXT
+  // =======================================================
 
   const getLocalizedText = (value) => {
     if (!value) return "";
+
+    /*
+    If the database contains a normal string,
+    return it directly.
+    */
 
     if (typeof value === "string") {
       return value;
     }
 
-    return value[language] || value.en || "";
+    /*
+    Try selected language first.
+
+    If that translation doesn't exist,
+    fall back to Amharic.
+
+    Finally fall back to English.
+    */
+
+    return (
+      value[language] ||
+      value.am ||
+      value.en ||
+      ""
+    );
   };
+
+  // =======================================================
+  // PROVIDER
+  // =======================================================
 
   return (
     <LanguageContext.Provider
@@ -79,8 +146,13 @@ export const LanguageProvider = ({ children }) => {
   );
 };
 
+// =========================================================
+// USE LANGUAGE
+// =========================================================
+
 export const useLanguage = () => {
-  const context = useContext(LanguageContext);
+  const context =
+    useContext(LanguageContext);
 
   if (!context) {
     throw new Error(
