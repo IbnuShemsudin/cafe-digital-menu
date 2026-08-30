@@ -18,13 +18,17 @@ function Header() {
 
   const {
     language,
-    setLanguage,
+    changeLanguage,
   } = useLanguage();
 
   const closeMobileMenu = () => {
     setMobileOpen(false);
     setLanguageOpen(false);
   };
+
+  /* =========================================================
+     LANGUAGES
+  ========================================================= */
 
   const languages = [
     {
@@ -50,12 +54,13 @@ function Header() {
     ) || languages[0];
 
   const handleLanguageChange = (code) => {
-    setLanguage(code);
+    changeLanguage(code);
     setLanguageOpen(false);
   };
 
   return (
     <header className="sticky top-0 z-40 border-b border-[#C89550]/30 bg-[#FBF3E7]/95 backdrop-blur-md">
+
       <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
         {/* =====================================================
@@ -123,8 +128,10 @@ function Header() {
               />
             </button>
 
+            {/* LANGUAGE DROPDOWN */}
+
             {languageOpen && (
-              <div className="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-xl border border-[#E4D3BE] bg-white p-1.5 shadow-xl">
+              <div className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border border-[#E4D3BE] bg-white p-1.5 shadow-xl">
 
                 {languages.map((item) => (
                   <button
@@ -173,7 +180,10 @@ function Header() {
             }
           >
             <LogIn size={16} />
-            <span>Admin Login</span>
+
+            <span>
+              Admin Login
+            </span>
           </NavLink>
 
           {/* =================================================
@@ -191,7 +201,10 @@ function Header() {
             }
           >
             <UserPlus size={16} />
-            <span>Register</span>
+
+            <span>
+              Register
+            </span>
           </NavLink>
 
         </nav>
@@ -230,9 +243,7 @@ function Header() {
 
           <div className="mx-auto flex max-w-6xl flex-col gap-2">
 
-            {/* =================================================
-                HOME
-            ================================================= */}
+            {/* HOME */}
 
             <NavLink
               to="/"
@@ -249,7 +260,7 @@ function Header() {
             </NavLink>
 
             {/* =================================================
-                LANGUAGE
+                MOBILE LANGUAGE
             ================================================= */}
 
             <div className="rounded-[3px] border border-[#E4D3BE] bg-white/60 p-2">
@@ -304,6 +315,7 @@ function Header() {
               }
             >
               <LogIn size={17} />
+
               Admin Login
             </NavLink>
 
@@ -323,12 +335,15 @@ function Header() {
               }
             >
               <UserPlus size={17} />
+
               Register
             </NavLink>
 
           </div>
+
         </div>
       )}
+
     </header>
   );
 }
