@@ -31,14 +31,13 @@ function MenuHome() {
      MENU STATE
   ========================= */
 
-  const [menuItems, setMenuItems] =
-    useState([]);
+  const [menuItems, setMenuItems] = useState([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
+
+  const [retrying, setRetrying] = useState(false);
 
   /* =========================
      FILTER STATE
@@ -47,54 +46,97 @@ function MenuHome() {
   const [selectedCategory, setSelectedCategory] =
     useState("all");
 
-  const [search, setSearch] =
-    useState("");
+  const [search, setSearch] = useState("");
 
   const [selectedItem, setSelectedItem] =
     useState(null);
 
-  const [favorites, setFavorites] =
-    useState([]);
+  const [favorites, setFavorites] = useState([]);
 
-  const [filterOpen, setFilterOpen] =
-    useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const [selectedFilters, setSelectedFilters] =
     useState([]);
 
-  /* =========================
+  /* =========================================================
      LOAD MENU
-  ========================= */
+  ========================================================= */
+
+  const loadMenu = async (isRetry = false) => {
+    try {
+      if (isRetry) {
+        setRetrying(true);
+      } else {
+        setLoading(true);
+      }
+
+      setError("");
+
+      /*
+       * Give Render enough time to wake up,
+       * but don't let the request hang forever.
+       */
+      const controller = new AbortController();
+
+      const timeout = setTimeout(() => {
+        controller.abort();
+      }, 30000);
+
+      try {
+        /*
+         * getMenuItems currently doesn't accept
+         * AbortController options, so this timeout
+         * mainly protects this loading flow.
+         */
+
+        const response = await getMenuItems();
+
+        clearTimeout(timeout);
+
+        const items = response?.data || [];
+
+        setMenuItems(items);
+      } catch (requestError) {
+        clearTimeout(timeout);
+
+        throw requestError;
+      }
+    } catch (error) {
+      console.error("Failed to load menu:", error);
+
+      /*
+       * Friendly message for customers.
+       */
+      if (
+        error?.name === "AbortError" ||
+        error?.message?.includes("Failed to fetch")
+      ) {
+        setError(
+          "Our cafe menu server is waking up. Please try again in a moment."
+        );
+      } else {
+        setError(
+          error?.message ||
+            "We couldn't load the menu right now."
+        );
+      }
+    } finally {
+      setLoading(false);
+      setRetrying(false);
+    }
+  };
 
   useEffect(() => {
-    const loadMenu = async () => {
-      try {
-        setLoading(true);
-        setError("");
-
-        const response =
-          await getMenuItems();
-
-        setMenuItems(
-          response.data || []
-        );
-      } catch (error) {
-        console.error(
-          "Failed to load menu:",
-          error
-        );
-
-        setError(
-          error.message ||
-            "Failed to load menu"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadMenu();
   }, []);
+
+  /* =========================================================
+     RETRY
+  ========================================================= */
+
+  const handleRetry = async () => {
+    await loadMenu(true);
+  };
 
   /* =========================
      FAVORITES
@@ -104,8 +146,7 @@ function MenuHome() {
     setFavorites((current) =>
       current.includes(id)
         ? current.filter(
-            (itemId) =>
-              itemId !== id
+            (itemId) => itemId !== id
           )
         : [...current, id]
     );
@@ -119,10 +160,7 @@ function MenuHome() {
     return [
       ...new Set(
         menuItems
-          .map(
-            (item) =>
-              item.category
-          )
+          .map((item) => item.category)
           .filter(Boolean)
       ),
     ];
@@ -133,16 +171,12 @@ function MenuHome() {
   ========================= */
 
   const filteredItems = useMemo(() => {
-    const query = search
-      .trim()
-      .toLowerCase();
+    const query = search.trim().toLowerCase();
 
     return menuItems.filter((item) => {
-
       const matchesCategory =
         selectedCategory === "all" ||
-        item.category ===
-          selectedCategory;
+        item.category === selectedCategory;
 
       const searchableText = [
         item.name?.en,
@@ -163,38 +197,22 @@ function MenuHome() {
 
       const matchesSearch =
         !query ||
-        searchableText.includes(
-          query
-        );
+        searchableText.includes(query);
 
       const matchesFilters =
-        selectedFilters.every(
-          (filter) => {
-
-            if (
-              filter ===
-              "available"
-            ) {
-              return (
-                item.availability ===
-                "available"
-              );
-            }
-
-            if (
-              filter ===
-              "popular"
-            ) {
-              return item.tags?.includes(
-                "popular"
-              );
-            }
-
-            return item.tags?.includes(
-              filter
+        selectedFilters.every((filter) => {
+          if (filter === "available") {
+            return (
+              item.availability === "available"
             );
           }
-        );
+
+          if (filter === "popular") {
+            return item.tags?.includes("popular");
+          }
+
+          return item.tags?.includes(filter);
+        });
 
       return (
         matchesCategory &&
@@ -219,72 +237,6 @@ function MenuHome() {
     );
   }, [menuItems]);
 
-  /* =========================
-     LOADING
-  ========================= */
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FBF3E7]">
-        <div className="text-center">
-
-          <div className="relative mx-auto h-14 w-14">
-            <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-[#E4D3BE] border-t-[#B5502D]" />
-
-            <div className="absolute inset-[6px] rounded-full bg-[#FBF3E7]" />
-          </div>
-
-          <p className="mt-5 [font-family:'IBM_Plex_Mono',monospace] text-[11px] uppercase tracking-[0.2em] text-[#6B564A]">
-            Brewing the menu
-          </p>
-
-        </div>
-      </div>
-    );
-  }
-
-  /* =========================
-     ERROR
-  ========================= */
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-[#FBF3E7] px-5">
-
-        <div className="mx-auto flex min-h-screen max-w-md items-center justify-center">
-
-          <div className="w-full rounded-[4px] border border-[#E4D3BE] bg-white/70 p-9 text-center shadow-[0_1px_0_#fff_inset]">
-
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[#C89550]/50 text-2xl">
-              ☕
-            </div>
-
-            <h2 className="mt-5 [font-family:'Fraunces',serif] text-2xl font-semibold text-[#1F140D]">
-              The menu didn&apos;t brew
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-[#6B564A]">
-              {error}
-            </p>
-
-            <button
-              type="button"
-              onClick={() =>
-                window.location.reload()
-              }
-              className="mt-6 rounded-[3px] bg-[#B5502D] px-6 py-3 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-[#9C4324]"
-            >
-              Try Again
-            </button>
-
-          </div>
-
-        </div>
-
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-[#FBF3E7] text-[#1F140D] [font-family:'General_Sans',ui-sans-serif,system-ui]">
 
@@ -296,7 +248,9 @@ function MenuHome() {
 
       <main className="mx-auto max-w-6xl px-4 pb-28 sm:px-6 lg:px-8">
 
-        {/* SEARCH */}
+        {/* =====================================================
+            SEARCH
+        ===================================================== */}
 
         <section className="pt-5 sm:pt-8">
           <SearchBar
@@ -308,196 +262,265 @@ function MenuHome() {
           />
         </section>
 
-        {/* HERO */}
+        {/* =====================================================
+            HERO
+        ===================================================== */}
 
         <Hero
           onSpecialsClick={() =>
-            setSelectedCategory(
-              "coffee"
-            )
+            setSelectedCategory("coffee")
           }
         />
 
-        {/* CATEGORIES */}
+        {/* =====================================================
+            CATEGORIES
+        ===================================================== */}
 
-        <CategoryTabs
-          categories={categories}
-          selectedCategory={
-            selectedCategory
-          }
-          onCategoryChange={
-            setSelectedCategory
-          }
-        />
+        {loading ? (
+          <CategorySkeleton />
+        ) : (
+          <CategoryTabs
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onCategoryChange={
+              setSelectedCategory
+            }
+          />
+        )}
 
-        {/* ACTIVE FILTERS */}
+        {/* =====================================================
+            ACTIVE FILTERS
+        ===================================================== */}
 
-        {selectedFilters.length >
-          0 && (
+        {selectedFilters.length > 0 && (
           <div className="mt-6 flex items-center gap-2 overflow-x-auto border-b border-dashed border-[#C89550]/40 pb-4">
 
             <span className="shrink-0 [font-family:'IBM_Plex_Mono',monospace] text-[10px] uppercase tracking-[0.18em] text-[#6B564A]">
               Filtered by
             </span>
 
-            {selectedFilters.map(
-              (filter) => (
-                <span
-                  key={filter}
-                  className="shrink-0 rounded-full border border-[#B5502D]/30 bg-[#B5502D]/10 px-3 py-1 text-xs font-semibold capitalize tracking-wide text-[#B5502D]"
-                >
-                  {filter.replace(
-                    "-",
-                    " "
-                  )}
-                </span>
-              )
-            )}
-
+            {selectedFilters.map((filter) => (
+              <span
+                key={filter}
+                className="shrink-0 rounded-full border border-[#B5502D]/30 bg-[#B5502D]/10 px-3 py-1 text-xs font-semibold capitalize tracking-wide text-[#B5502D]"
+              >
+                {filter.replace("-", " ")}
+              </span>
+            ))}
           </div>
         )}
 
-        {/* POPULAR */}
+        {/* =====================================================
+            LOADING MENU
+        ===================================================== */}
 
-        {!search &&
-          selectedCategory ===
-            "all" &&
-          selectedFilters.length ===
-            0 &&
-          popularItems.length > 0 && (
-            <section className="mt-10 sm:mt-11">
+        {loading && (
+          <section className="mt-10 sm:mt-12">
 
-              <SectionLabel
-                eyebrow="Customer favorites"
-                title={t("popular")}
-              />
+            <SectionLabel
+              eyebrow="Please wait"
+              title="Preparing the menu"
+            />
 
-              <div className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 pb-4 sm:-mx-6 sm:gap-5 sm:px-6 lg:-mx-8 lg:px-8">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-5">
 
-                {popularItems.map(
-                  (item, index) => (
-                    <div
-                      key={item._id}
-                      className="w-[270px] shrink-0 sm:w-[310px]"
-                    >
-                      <MenuCard
-                        item={item}
-                        onSelect={
-                          setSelectedItem
-                        }
-                        isFavorite={favorites.includes(
-                          item._id
-                        )}
-                        onToggleFavorite={
-                          toggleFavorite
-                        }
-                        variant="feature"
-                        rank={index + 1}
-                      />
-                    </div>
-                  )
-                )}
-
-              </div>
-
-            </section>
-          )}
-
-        {/* MAIN MENU */}
-
-        <section className="mt-10 sm:mt-12">
-
-          <SectionLabel
-            eyebrow="Freshly prepared"
-            title={
-              search ||
-              selectedFilters.length >
-                0
-                ? `${filteredItems.length} ${
-                    filteredItems.length ===
-                    1
-                      ? "result"
-                      : "results"
-                  }`
-                : "Our Menu"
-            }
-          />
-
-          {filteredItems.length >
-          0 ? (
-
-            <div
-              className="
-                grid
-                grid-cols-1
-                gap-3
-                sm:grid-cols-2
-                sm:gap-4
-                lg:grid-cols-3
-                lg:gap-5
-              "
-            >
-
-              {filteredItems.map(
-                (item) => (
-                  <MenuCard
-                    key={item._id}
-                    item={item}
-                    onSelect={
-                      setSelectedItem
-                    }
-                    isFavorite={favorites.includes(
-                      item._id
-                    )}
-                    onToggleFavorite={
-                      toggleFavorite
-                    }
-                    variant="compact"
-                  />
+              {Array.from({ length: 6 }).map(
+                (_, index) => (
+                  <MenuSkeleton key={index} />
                 )
               )}
 
             </div>
 
-          ) : (
+            <div className="mt-8 text-center">
 
-            <div className="rounded-[4px] border border-dashed border-[#C89550]/50 bg-white/40 px-6 py-16 text-center">
+              <div className="inline-flex items-center gap-3 rounded-full border border-[#E4D3BE] bg-white/60 px-5 py-3">
 
-              <h3 className="[font-family:'Fraunces',serif] text-xl font-semibold text-[#1F140D]">
-                {t("noResults")}
-              </h3>
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-[#E4D3BE] border-t-[#B5502D]" />
 
-              <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[#6B564A]">
-                Try changing your
-                search, category, or
-                filters.
+                <p className="text-xs text-[#6B564A]">
+                  Brewing fresh menu data...
+                </p>
+
+              </div>
+
+              <p className="mt-3 text-[11px] text-[#9A887A]">
+                Our menu server may take a few seconds
+                to wake up.
+              </p>
+
+            </div>
+
+          </section>
+        )}
+
+        {/* =====================================================
+            ERROR
+        ===================================================== */}
+
+        {!loading && error && (
+          <section className="mt-10 sm:mt-12">
+
+            <div className="rounded-[4px] border border-[#E4D3BE] bg-white/70 px-6 py-14 text-center shadow-[0_1px_0_#fff_inset]">
+
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-[#C89550]/50 bg-[#FBF3E7] text-2xl">
+                ☕
+              </div>
+
+              <h2 className="mt-5 [font-family:'Fraunces',serif] text-2xl font-semibold text-[#1F140D]">
+                The menu needs a moment
+              </h2>
+
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#6B564A]">
+                {error}
               </p>
 
               <button
                 type="button"
-                onClick={() => {
-                  setSearch("");
-                  setSelectedCategory(
-                    "all"
-                  );
-                  setSelectedFilters(
-                    []
-                  );
-                }}
-                className="mt-5 rounded-[3px] bg-[#B5502D] px-5 py-2.5 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-[#9C4324]"
+                onClick={handleRetry}
+                disabled={retrying}
+                className="mt-6 inline-flex items-center gap-2 rounded-[3px] bg-[#B5502D] px-6 py-3 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-[#9C4324] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Clear Everything
+                {retrying && (
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                )}
+
+                {retrying
+                  ? "Brewing..."
+                  : "Try Again"}
               </button>
 
             </div>
 
-          )}
+          </section>
+        )}
 
-        </section>
+        {/* =====================================================
+            CONTENT
+        ===================================================== */}
+
+        {!loading && !error && (
+          <>
+            {/* =================================================
+                POPULAR
+            ================================================= */}
+
+            {!search &&
+              selectedCategory === "all" &&
+              selectedFilters.length === 0 &&
+              popularItems.length > 0 && (
+                <section className="mt-10 sm:mt-11">
+
+                  <SectionLabel
+                    eyebrow="Customer favorites"
+                    title={t("popular")}
+                  />
+
+                  <div className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 pb-4 sm:-mx-6 sm:gap-5 sm:px-6 lg:-mx-8 lg:px-8">
+
+                    {popularItems.map(
+                      (item, index) => (
+                        <div
+                          key={item._id}
+                          className="w-[270px] shrink-0 sm:w-[310px]"
+                        >
+                          <MenuCard
+                            item={item}
+                            onSelect={
+                              setSelectedItem
+                            }
+                            isFavorite={favorites.includes(
+                              item._id
+                            )}
+                            onToggleFavorite={
+                              toggleFavorite
+                            }
+                            variant="feature"
+                            rank={index + 1}
+                          />
+                        </div>
+                      )
+                    )}
+
+                  </div>
+                </section>
+              )}
+
+            {/* =================================================
+                MAIN MENU
+            ================================================= */}
+
+            <section className="mt-10 sm:mt-12">
+
+              <SectionLabel
+                eyebrow="Freshly prepared"
+                title={
+                  search ||
+                  selectedFilters.length > 0
+                    ? `${filteredItems.length} ${
+                        filteredItems.length === 1
+                          ? "result"
+                          : "results"
+                      }`
+                    : "Our Menu"
+                }
+              />
+
+              {filteredItems.length > 0 ? (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 lg:gap-5">
+
+                  {filteredItems.map((item) => (
+                    <MenuCard
+                      key={item._id}
+                      item={item}
+                      onSelect={setSelectedItem}
+                      isFavorite={favorites.includes(
+                        item._id
+                      )}
+                      onToggleFavorite={
+                        toggleFavorite
+                      }
+                      variant="compact"
+                    />
+                  ))}
+
+                </div>
+              ) : (
+                <div className="rounded-[4px] border border-dashed border-[#C89550]/50 bg-white/40 px-6 py-16 text-center">
+
+                  <h3 className="[font-family:'Fraunces',serif] text-xl font-semibold text-[#1F140D]">
+                    {t("noResults")}
+                  </h3>
+
+                  <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[#6B564A]">
+                    Try changing your search,
+                    category, or filters.
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch("");
+                      setSelectedCategory("all");
+                      setSelectedFilters([]);
+                    }}
+                    className="mt-5 rounded-[3px] bg-[#B5502D] px-5 py-2.5 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-[#9C4324]"
+                  >
+                    Clear Everything
+                  </button>
+
+                </div>
+              )}
+
+            </section>
+          </>
+        )}
 
       </main>
 
-      {/* ITEM DETAILS */}
+      {/* =====================================================
+          ITEM DETAILS
+      ===================================================== */}
 
       <ItemModal
         item={selectedItem}
@@ -516,16 +539,14 @@ function MenuHome() {
         }
       />
 
-      {/* FILTERS */}
+      {/* =====================================================
+          FILTERS
+      ===================================================== */}
 
       <FilterPanel
         open={filterOpen}
-        selectedFilters={
-          selectedFilters
-        }
-        onChange={
-          setSelectedFilters
-        }
+        selectedFilters={selectedFilters}
+        onChange={setSelectedFilters}
         onClose={() =>
           setFilterOpen(false)
         }
@@ -533,6 +554,51 @@ function MenuHome() {
           setSelectedFilters([])
         }
       />
+    </div>
+  );
+}
+
+/* =========================================================
+   MENU SKELETON
+========================================================= */
+
+function MenuSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-[4px] border border-[#E4D3BE] bg-white/60">
+
+      <div className="h-52 animate-pulse bg-[#E9DED2]" />
+
+      <div className="space-y-3 p-5">
+
+        <div className="h-5 w-2/3 animate-pulse rounded bg-[#E9DED2]" />
+
+        <div className="h-3 w-full animate-pulse rounded bg-[#E9DED2]" />
+
+        <div className="h-3 w-4/5 animate-pulse rounded bg-[#E9DED2]" />
+
+        <div className="mt-5 h-8 w-24 animate-pulse rounded bg-[#E9DED2]" />
+
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   CATEGORY SKELETON
+========================================================= */
+
+function CategorySkeleton() {
+  return (
+    <div className="mt-6 flex gap-2 overflow-hidden border-b border-[#C89550]/30 pb-4">
+
+      {Array.from({ length: 5 }).map(
+        (_, index) => (
+          <div
+            key={index}
+            className="h-9 w-24 shrink-0 animate-pulse rounded-full bg-[#E9DED2]"
+          />
+        )
+      )}
 
     </div>
   );
