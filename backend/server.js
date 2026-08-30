@@ -38,16 +38,28 @@ const app = express();
 // =========================================================
 
 const allowedOrigins = [
+  // ---------------------------------------------------------
   // Local development
+  // ---------------------------------------------------------
   "http://localhost:5173",
   "http://127.0.0.1:5173",
 
-  // Vercel production
-  "https://cafe-digital-menu-eta.vercel.app",
+  // ---------------------------------------------------------
+  // CURRENT PRODUCTION DOMAIN
+  // ---------------------------------------------------------
+  "https://hodadis-menu.vercel.app",
 
-  // Current Vercel deployment
+  // ---------------------------------------------------------
+  // OLD VERCEL DOMAINS
+  // Keep these temporarily while migrating
+  // ---------------------------------------------------------
+  "https://cafe-digital-menu-eta.vercel.app",
   "https://cafe-digital-menu-qzr13byva-abdurezaks-projects.vercel.app",
 ];
+
+// =========================================================
+// CORS MIDDLEWARE
+// =========================================================
 
 app.use(
   cors({
@@ -59,18 +71,38 @@ app.use(
         return callback(null, true);
       }
 
+      // Allow approved origins
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
-      console.log("CORS blocked origin:", origin);
+      console.log(
+        "CORS blocked origin:",
+        origin
+      );
 
       return callback(
-        new Error(`CORS blocked origin: ${origin}`)
+        new Error(
+          `CORS blocked origin: ${origin}`
+        )
       );
     },
 
     credentials: true,
+
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "OPTIONS",
+    ],
+
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ],
   })
 );
 
@@ -95,85 +127,145 @@ app.use(
 // HEALTH CHECK
 // =========================================================
 
-app.get("/api/health", (req, res) => {
-  res.json({
-    success: true,
-    message: "Cafe Menu API is running",
-  });
-});
+app.get(
+  "/api/health",
+  (req, res) => {
+    res.json({
+      success: true,
+      message:
+        "Cafe Menu API is running",
+    });
+  }
+);
 
 // =========================================================
 // ROUTES
 // =========================================================
 
-app.use("/api/auth", authRoutes);
+app.use(
+  "/api/auth",
+  authRoutes
+);
 
-app.use("/api/menu", menuRoutes);
+app.use(
+  "/api/menu",
+  menuRoutes
+);
 
 // =========================================================
 // 404
 // =========================================================
 
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-  });
-});
+app.use(
+  (req, res) => {
+    res.status(404).json({
+      success: false,
+      message: "Route not found",
+    });
+  }
+);
 
 // =========================================================
 // GLOBAL ERROR HANDLER
 // =========================================================
 
-app.use((error, req, res, next) => {
-  console.error("Global server error:", error);
+app.use(
+  (error, req, res, next) => {
+    console.error(
+      "Global server error:",
+      error
+    );
 
-  if (error.type === "entity.too.large") {
-    return res.status(413).json({
+    // -------------------------------------------------------
+    // Request body too large
+    // -------------------------------------------------------
+
+    if (
+      error.type ===
+      "entity.too.large"
+    ) {
+      return res.status(413).json({
+        success: false,
+        message:
+          "The uploaded image is too large. Please choose an image smaller than 5 MB.",
+      });
+    }
+
+    // -------------------------------------------------------
+    // CORS error
+    // -------------------------------------------------------
+
+    if (
+      error.message?.startsWith(
+        "CORS blocked"
+      )
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    // -------------------------------------------------------
+    // General error
+    // -------------------------------------------------------
+
+    res.status(
+      error.status || 500
+    ).json({
       success: false,
       message:
-        "The uploaded image is too large. Please choose an image smaller than 5 MB.",
+        error.message ||
+        "Internal server error",
     });
   }
-
-  // Handle CORS errors
-  if (error.message?.startsWith("CORS blocked")) {
-    return res.status(403).json({
-      success: false,
-      message: error.message,
-    });
-  }
-
-  res.status(error.status || 500).json({
-    success: false,
-    message:
-      error.message || "Internal server error",
-  });
-});
+);
 
 // =========================================================
 // START SERVER
 // =========================================================
 
-const PORT = process.env.PORT || 5000;
+const PORT =
+  process.env.PORT || 5000;
 
 const startServer = async () => {
   try {
+    // -------------------------------------------------------
     // Connect to MongoDB first
+    // -------------------------------------------------------
+
     await connectDB();
 
-    // Start Express only after DB connection succeeds
-    app.listen(PORT, () => {
-      console.log(
-        `Cafe Menu API running on port ${PORT}`
-      );
+    // -------------------------------------------------------
+    // Start Express
+    // -------------------------------------------------------
 
-      console.log(
-        `Environment: ${
-          process.env.NODE_ENV || "development"
-        }`
-      );
-    });
+    app.listen(
+      PORT,
+      () => {
+        console.log(
+          `Cafe Menu API running on port ${PORT}`
+        );
+
+        console.log(
+          `Environment: ${
+            process.env.NODE_ENV ||
+            "development"
+          }`
+        );
+
+        console.log(
+          "Allowed CORS origins:"
+        );
+
+        allowedOrigins.forEach(
+          (origin) =>
+            console.log(
+              `  ✓ ${origin}`
+            )
+        );
+      }
+    );
   } catch (error) {
     console.error(
       "Server startup failed:",
