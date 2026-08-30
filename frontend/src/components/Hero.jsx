@@ -66,7 +66,7 @@ const Hero = ({ onSpecialsClick }) => {
             />
 
             <span className="text-[11px] font-medium sm:text-sm">
-              {t("goodMorning")} ☀️
+              {t("goodMorning")} 
             </span>
           </div>
 
