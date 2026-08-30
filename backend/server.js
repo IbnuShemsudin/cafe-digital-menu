@@ -37,9 +37,39 @@ const app = express();
 // CORS
 // =========================================================
 
+const allowedOrigins = [
+  // Local development
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+
+  // Vercel production
+  "https://cafe-digital-menu-eta.vercel.app",
+
+  // Current Vercel deployment
+  "https://cafe-digital-menu-qzr13byva-abdurezaks-projects.vercel.app",
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+      // Allow requests without an Origin header.
+      // Useful for Postman, Thunder Client,
+      // server-to-server requests, etc.
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.log("CORS blocked origin:", origin);
+
+      return callback(
+        new Error(`CORS blocked origin: ${origin}`)
+      );
+    },
+
     credentials: true,
   })
 );
@@ -106,9 +136,18 @@ app.use((error, req, res, next) => {
     });
   }
 
+  // Handle CORS errors
+  if (error.message?.startsWith("CORS blocked")) {
+    return res.status(403).json({
+      success: false,
+      message: error.message,
+    });
+  }
+
   res.status(error.status || 500).json({
     success: false,
-    message: error.message || "Internal server error",
+    message:
+      error.message || "Internal server error",
   });
 });
 
@@ -125,11 +164,22 @@ const startServer = async () => {
 
     // Start Express only after DB connection succeeds
     app.listen(PORT, () => {
-      console.log(`Cafe Menu API running on port ${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+      console.log(
+        `Cafe Menu API running on port ${PORT}`
+      );
+
+      console.log(
+        `Environment: ${
+          process.env.NODE_ENV || "development"
+        }`
+      );
     });
   } catch (error) {
-    console.error("Server startup failed:", error.message);
+    console.error(
+      "Server startup failed:",
+      error.message
+    );
+
     process.exit(1);
   }
 };

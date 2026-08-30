@@ -12,7 +12,8 @@ import { useLanguage } from "../context/LanguageContext";
 import { getMenuItems } from "../services/api";
 
 /* =========================================================
-   VISUAL SYSTEM — Ethiopian coffee-house, "menu board" look
+   VISUAL SYSTEM
+   Ethiopian coffee-house / menu board look
 
    Palette:
    #FBF3E7 parchment
@@ -137,14 +138,11 @@ function MenuHome() {
       .toLowerCase();
 
     return menuItems.filter((item) => {
-      /* CATEGORY */
 
       const matchesCategory =
         selectedCategory === "all" ||
         item.category ===
           selectedCategory;
-
-      /* SEARCH */
 
       const searchableText = [
         item.name?.en,
@@ -169,11 +167,10 @@ function MenuHome() {
           query
         );
 
-      /* FILTERS */
-
       const matchesFilters =
         selectedFilters.every(
           (filter) => {
+
             if (
               filter ===
               "available"
@@ -291,13 +288,15 @@ function MenuHome() {
   return (
     <div className="min-h-screen bg-[#FBF3E7] text-[#1F140D] [font-family:'General_Sans',ui-sans-serif,system-ui]">
 
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
+
       <Header />
 
       <main className="mx-auto max-w-6xl px-4 pb-28 sm:px-6 lg:px-8">
 
-        {/* =========================
-            SEARCH
-        ========================= */}
+        {/* SEARCH */}
 
         <section className="pt-5 sm:pt-8">
           <SearchBar
@@ -309,9 +308,7 @@ function MenuHome() {
           />
         </section>
 
-        {/* =========================
-            HERO
-        ========================= */}
+        {/* HERO */}
 
         <Hero
           onSpecialsClick={() =>
@@ -321,9 +318,7 @@ function MenuHome() {
           }
         />
 
-        {/* =========================
-            CATEGORIES
-        ========================= */}
+        {/* CATEGORIES */}
 
         <CategoryTabs
           categories={categories}
@@ -335,9 +330,7 @@ function MenuHome() {
           }
         />
 
-        {/* =========================
-            ACTIVE FILTERS
-        ========================= */}
+        {/* ACTIVE FILTERS */}
 
         {selectedFilters.length >
           0 && (
@@ -364,10 +357,7 @@ function MenuHome() {
           </div>
         )}
 
-        {/* =========================
-            POPULAR
-            HORIZONTAL SPOTLIGHT
-        ========================= */}
+        {/* POPULAR */}
 
         {!search &&
           selectedCategory ===
@@ -413,10 +403,7 @@ function MenuHome() {
             </section>
           )}
 
-        {/* =========================
-            MAIN MENU
-            COMPACT VERTICAL GRID
-        ========================= */}
+        {/* MAIN MENU */}
 
         <section className="mt-10 sm:mt-12">
 
@@ -510,9 +497,7 @@ function MenuHome() {
 
       </main>
 
-      {/* =========================
-          ITEM DETAILS
-      ========================= */}
+      {/* ITEM DETAILS */}
 
       <ItemModal
         item={selectedItem}
@@ -531,9 +516,7 @@ function MenuHome() {
         }
       />
 
-      {/* =========================
-          FILTERS
-      ========================= */}
+      {/* FILTERS */}
 
       <FilterPanel
         open={filterOpen}
