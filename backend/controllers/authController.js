@@ -28,6 +28,7 @@ const generateToken = (admin) => {
 |--------------------------------------------------------------------------
 */
 
+
 export const registerAdmin = async (
   req,
   res
@@ -38,6 +39,12 @@ export const registerAdmin = async (
       email,
       password,
     } = req.body;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validate request
+    |--------------------------------------------------------------------------
+    */
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -55,9 +62,24 @@ export const registerAdmin = async (
       });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Normalize email
+    |--------------------------------------------------------------------------
+    */
+
+    const normalizedEmail =
+      email.trim().toLowerCase();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Check existing admin
+    |--------------------------------------------------------------------------
+    */
+
     const existingAdmin =
       await Admin.findOne({
-        email: email.toLowerCase(),
+        email: normalizedEmail,
       });
 
     if (existingAdmin) {
@@ -68,23 +90,44 @@ export const registerAdmin = async (
       });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Hash password
+    |--------------------------------------------------------------------------
+    */
+
     const hashedPassword =
-      await bcrypt.hash(password, 12);
+      await bcrypt.hash(
+        password,
+        12
+      );
 
-    const admin = await Admin.create({
-      name,
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      role: "admin",
-    });
+    /*
+    |--------------------------------------------------------------------------
+    | Create admin
+    |--------------------------------------------------------------------------
+    */
 
-    const token = generateToken(admin);
+    const admin =
+      await Admin.create({
+        name: name.trim(),
+        email: normalizedEmail,
+        password: hashedPassword,
+        role: "admin",
+        isActive: true,
+      });
 
-    res.status(201).json({
+    /*
+    |--------------------------------------------------------------------------
+    | Response
+    |--------------------------------------------------------------------------
+    */
+
+    return res.status(201).json({
       success: true,
       message:
         "Admin created successfully",
-      token,
+
       admin: {
         id: admin._id,
         name: admin.name,
@@ -98,13 +141,14 @@ export const registerAdmin = async (
       error
     );
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message:
         "Failed to create admin",
     });
   }
 };
+
 
 /*
 |--------------------------------------------------------------------------

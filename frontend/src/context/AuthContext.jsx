@@ -46,20 +46,26 @@ export function AuthProvider({ children }) {
         const parsedAdmin =
           JSON.parse(storedAdmin);
 
-        setAdmin(parsedAdmin);
+        /*
+         * Only restore a real admin session.
+         */
+        if (
+          parsedAdmin &&
+          parsedAdmin.role === "admin"
+        ) {
+          setAdmin(parsedAdmin);
+        } else {
+          localStorage.removeItem(ADMIN_KEY);
+          localStorage.removeItem(TOKEN_KEY);
+        }
       } catch (error) {
         console.error(
           "Failed to restore admin session:",
           error
         );
 
-        localStorage.removeItem(
-          ADMIN_KEY
-        );
-
-        localStorage.removeItem(
-          TOKEN_KEY
-        );
+        localStorage.removeItem(ADMIN_KEY);
+        localStorage.removeItem(TOKEN_KEY);
       }
     }
 
@@ -77,6 +83,12 @@ export function AuthProvider({ children }) {
     if (!token || !adminData) {
       throw new Error(
         "Invalid authentication response."
+      );
+    }
+
+    if (adminData.role !== "admin") {
+      throw new Error(
+        "This account does not have administrator access."
       );
     }
 
@@ -113,7 +125,8 @@ export function AuthProvider({ children }) {
           },
 
           body: JSON.stringify({
-            email: email.trim().toLowerCase(),
+            email:
+              email.trim().toLowerCase(),
             password,
           }),
         }
@@ -145,6 +158,17 @@ export function AuthProvider({ children }) {
         );
       }
 
+      /*
+       * Extra frontend protection.
+       */
+      if (
+        data.admin.role !== "admin"
+      ) {
+        throw new Error(
+          "This account does not have administrator access."
+        );
+      }
+
       saveSession(
         data.token,
         data.admin
@@ -154,92 +178,6 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.error(
         "Login error:",
-        error
-      );
-
-      if (
-        error instanceof TypeError
-      ) {
-        throw new Error(
-          `Cannot connect to the backend server at ${API_URL}.`
-        );
-      }
-
-      throw error;
-    }
-  };
-
-  /* =========================================================
-     REGISTER
-  ========================================================= */
-
-  const register = async (
-    name,
-    email,
-    password
-  ) => {
-    try {
-      const response = await fetch(
-        `${API_URL}/auth/register`,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            name: name.trim(),
-            email: email.trim().toLowerCase(),
-            password,
-          }),
-        }
-      );
-
-      let data;
-
-      try {
-        data = await response.json();
-      } catch {
-        throw new Error(
-          "The server returned an invalid response."
-        );
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          data?.message ||
-            "Unable to create admin account."
-        );
-      }
-
-      if (
-        !data?.token ||
-        !data?.admin
-      ) {
-        throw new Error(
-          "Invalid registration response from server."
-        );
-      }
-
-      /*
-       * The backend returns a JWT immediately
-       * after successful registration.
-       *
-       * Therefore the new admin is automatically
-       * logged in.
-       */
-
-      saveSession(
-        data.token,
-        data.admin
-      );
-
-      return data;
-    } catch (error) {
-      console.error(
-        "Registration error:",
         error
       );
 
@@ -281,7 +219,6 @@ export function AuthProvider({ children }) {
         admin,
         loading,
         login,
-        register,
         logout,
       }}
     >

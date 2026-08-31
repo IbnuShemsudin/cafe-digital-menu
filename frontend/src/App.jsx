@@ -88,10 +88,14 @@ function App() {
             ADMIN REGISTER
         ===================================================== */}
 
-        <Route
-          path="/admin/register"
-          element={<AdminRegister />}
-        />
+       <Route
+  path="/admin/register"
+  element={
+    <ProtectedAdminRoute>
+      <AdminRegister />
+    </ProtectedAdminRoute>
+  }
+/>
 
         {/* =====================================================
             ADMIN DASHBOARD
