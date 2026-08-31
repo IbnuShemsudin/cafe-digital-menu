@@ -148,7 +148,10 @@ const getImageSource = (item) => {
 };
 
 const isDataImage = (value) => {
-  return typeof value === "string" && value.startsWith("data:image");
+  return (
+    typeof value === "string" &&
+    value.startsWith("data:image")
+  );
 };
 
 /* =========================================================
@@ -168,7 +171,8 @@ function AdminMenu() {
   const [success, setSuccess] = useState("");
 
   const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] =
+    useState("all");
   const [availabilityFilter, setAvailabilityFilter] =
     useState("all");
 
@@ -193,14 +197,6 @@ function AdminMenu() {
       setError("");
 
       const response = await getMenuItems();
-
-      /*
-       * Supports both:
-       * response.data
-       *
-       * and:
-       * response = [...]
-       */
 
       const menuData = Array.isArray(response)
         ? response
@@ -234,9 +230,14 @@ function AdminMenu() {
     const searchValue = search.trim().toLowerCase();
 
     return items.filter((item) => {
-      const name = item?.name?.en?.toLowerCase() || "";
-      const amName = item?.name?.am?.toLowerCase() || "";
-      const omName = item?.name?.om?.toLowerCase() || "";
+      const name =
+        item?.name?.en?.toLowerCase() || "";
+
+      const amName =
+        item?.name?.am?.toLowerCase() || "";
+
+      const omName =
+        item?.name?.om?.toLowerCase() || "";
 
       const matchesSearch =
         !searchValue ||
@@ -314,7 +315,8 @@ function AdminMenu() {
       },
 
       price:
-        item?.price !== undefined && item?.price !== null
+        item?.price !== undefined &&
+        item?.price !== null
           ? String(item.price)
           : "",
 
@@ -322,7 +324,9 @@ function AdminMenu() {
 
       image: item?.image || "",
 
-      tags: Array.isArray(item?.tags) ? item.tags : [],
+      tags: Array.isArray(item?.tags)
+        ? item.tags
+        : [],
 
       availability:
         item?.availability || "available",
@@ -463,14 +467,6 @@ function AdminMenu() {
 
       setImagePreview(result);
 
-      /*
-       * Current API expects image as a string.
-       * Therefore we keep the Base64 data URL.
-       *
-       * If your backend uses Multer/Cloudinary,
-       * this should instead be changed to FormData.
-       */
-
       setForm((previous) => ({
         ...previous,
         image: result,
@@ -523,11 +519,6 @@ function AdminMenu() {
     }
 
     if (mode === "device") {
-      /*
-       * Keep an existing normal URL visible while editing,
-       * but don't treat it as a newly selected device image.
-       */
-
       if (!isDataImage(form.image)) {
         setImagePreview("");
       }
@@ -638,10 +629,6 @@ function AdminMenu() {
       };
 
       if (editingItem) {
-        /*
-         * Preserve current active state.
-         */
-
         payload.isActive =
           editingItem.isActive !== false;
 
@@ -736,7 +723,8 @@ function AdminMenu() {
   const handleCardImageError = (event) => {
     event.currentTarget.style.display = "none";
 
-    const parent = event.currentTarget.parentElement;
+    const parent =
+      event.currentTarget.parentElement;
 
     if (parent) {
       parent.classList.add(
@@ -752,15 +740,13 @@ function AdminMenu() {
         "flex h-full w-full items-center justify-center text-[#aa9b90]";
 
       placeholder.innerHTML =
-        '<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>';
+        '<svg xmlns="http://www.w3.org/2000/svg" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>';
 
       parent.appendChild(placeholder);
     }
   };
 
-  const handlePreviewImageError = (
-    event
-  ) => {
+  const handlePreviewImageError = (event) => {
     event.currentTarget.style.display = "none";
   };
 
@@ -770,60 +756,89 @@ function AdminMenu() {
 
   return (
     <AdminLayout>
-      <div className="mx-auto w-full max-w-7xl">
+      <div className="mx-auto w-full max-w-[1440px] px-0 sm:px-2 lg:px-4">
 
         {/* =================================================
             HEADER
         ================================================= */}
 
-        <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="mb-6 sm:mb-8">
+          <div className="relative overflow-hidden rounded-[28px] border border-[#eadfd6] bg-gradient-to-br from-[#fffdf9] via-white to-[#f6eee7] p-5 shadow-[0_10px_40px_rgba(58,36,24,0.06)] sm:p-7 lg:p-8">
 
-          <div>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#a27a60]">
-              Cafe Administration
-            </p>
+            <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[#8b4f2f]/[0.05] blur-2xl" />
 
-            <h1 className="font-serif text-3xl font-semibold text-[#3a2418] sm:text-4xl">
-              Menu Management
-            </h1>
+            <div className="pointer-events-none absolute -bottom-20 -left-10 h-40 w-40 rounded-full bg-[#d8b69e]/[0.08] blur-2xl" />
 
-            <p className="mt-2 max-w-xl text-sm leading-6 text-[#81736a]">
-              Create, update and organize
-              everything your customers see
-              on the digital menu.
-            </p>
-          </div>
+            <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
 
-          <div className="flex gap-3">
+              <div className="min-w-0">
 
-            <button
-              type="button"
-              onClick={loadMenu}
-              disabled={loading}
-              className="flex h-12 items-center justify-center gap-2 rounded-2xl border border-[#dfd2c8] bg-white px-4 text-sm font-semibold text-[#5d5048] transition hover:bg-[#f5eee8] disabled:opacity-50"
-            >
-              <RefreshCw
-                size={17}
-                className={
-                  loading
-                    ? "animate-spin"
-                    : ""
-                }
-              />
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#eadfd6] bg-white/80 px-3 py-1.5 backdrop-blur">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#8b4f2f]" />
 
-              Refresh
-            </button>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b4f2f]">
+                    Cafe Administration
+                  </p>
+                </div>
 
-            <button
-              type="button"
-              onClick={openCreateModal}
-              className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#8b4f2f] px-5 text-sm font-semibold text-white shadow-lg shadow-[#8b4f2f]/15 transition hover:bg-[#754126] active:scale-[0.98]"
-            >
-              <Plus size={18} />
+                <h1 className="font-serif text-[30px] font-semibold leading-tight tracking-[-0.02em] text-[#3a2418] sm:text-4xl lg:text-5xl">
+                  Menu Management
+                </h1>
 
-              Add Menu Item
-            </button>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-[#81736a] sm:text-[15px]">
+                  Create, update and organize everything your
+                  customers see on the digital menu.
+                </p>
 
+                <div className="mt-4 flex items-center gap-2 text-xs font-medium text-[#8c7b70]">
+                  <ChefHat
+                    size={15}
+                    className="text-[#8b4f2f]"
+                  />
+
+                  <span>
+                    {items.length} menu{" "}
+                    {items.length === 1
+                      ? "item"
+                      : "items"}
+                  </span>
+                </div>
+
+              </div>
+
+              <div className="flex w-full gap-2.5 sm:w-auto sm:gap-3">
+
+                <button
+                  type="button"
+                  onClick={loadMenu}
+                  disabled={loading}
+                  className="flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-[#dfd2c8] bg-white px-4 text-sm font-semibold text-[#5d5048] shadow-sm transition hover:bg-[#f5eee8] active:scale-[0.98] disabled:opacity-50 sm:flex-none"
+                >
+                  <RefreshCw
+                    size={17}
+                    className={
+                      loading
+                        ? "animate-spin"
+                        : ""
+                    }
+                  />
+
+                  <span>Refresh</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={openCreateModal}
+                  className="flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-[#8b4f2f] px-5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(139,79,47,0.22)] transition hover:bg-[#754126] active:scale-[0.98] sm:flex-none"
+                >
+                  <Plus size={18} />
+
+                  <span>Add Item</span>
+                </button>
+
+              </div>
+
+            </div>
           </div>
         </div>
 
@@ -832,24 +847,28 @@ function AdminMenu() {
         ================================================= */}
 
         {error && (
-          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-[#efcfc7] bg-[#fff4f1] p-4 text-sm text-[#9b493b]">
+          <div className="mb-5 flex items-start gap-3 rounded-[22px] border border-[#efcfc7] bg-[#fff4f1] p-4 text-sm text-[#9b493b] shadow-sm">
             <AlertCircle
               size={19}
               className="mt-0.5 shrink-0"
             />
 
-            <span>{error}</span>
+            <span className="leading-5">
+              {error}
+            </span>
           </div>
         )}
 
         {success && (
-          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-[#cfe0ca] bg-[#f1f7ef] p-4 text-sm text-[#52734e]">
+          <div className="mb-5 flex items-start gap-3 rounded-[22px] border border-[#cfe0ca] bg-[#f1f7ef] p-4 text-sm text-[#52734e] shadow-sm">
             <Check
               size={19}
               className="mt-0.5 shrink-0"
             />
 
-            <span>{success}</span>
+            <span className="leading-5">
+              {success}
+            </span>
           </div>
         )}
 
@@ -857,7 +876,7 @@ function AdminMenu() {
             STATS
         ================================================= */}
 
-        <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
 
           <StatCard
             label="Total Items"
@@ -907,9 +926,9 @@ function AdminMenu() {
             FILTERS
         ================================================= */}
 
-        <div className="mb-6 rounded-3xl border border-[#eadfd6] bg-white p-4 shadow-sm">
+        <div className="mb-6 rounded-[24px] border border-[#eadfd6] bg-white p-3.5 shadow-[0_6px_25px_rgba(58,36,24,0.04)] sm:p-4">
 
-          <div className="grid gap-3 lg:grid-cols-[1fr_auto_auto]">
+          <div className="grid gap-2.5 sm:gap-3 lg:grid-cols-[minmax(0,1fr)_200px_180px]">
 
             <div className="relative">
 
@@ -921,12 +940,10 @@ function AdminMenu() {
               <input
                 value={search}
                 onChange={(event) =>
-                  setSearch(
-                    event.target.value
-                  )
+                  setSearch(event.target.value)
                 }
                 placeholder="Search menu..."
-                className="h-12 w-full rounded-2xl border border-[#e4d9d0] bg-[#faf7f2] pl-11 pr-4 text-sm text-[#3a2418] outline-none transition placeholder:text-[#a5968b] focus:border-[#8b4f2f]"
+                className="h-12 w-full rounded-2xl border border-[#e4d9d0] bg-[#faf7f2] pl-11 pr-4 text-[16px] text-[#3a2418] outline-none transition placeholder:text-[#a5968b] focus:border-[#8b4f2f] focus:bg-white focus:ring-4 focus:ring-[#8b4f2f]/[0.08] sm:text-sm"
               />
 
             </div>
@@ -938,24 +955,20 @@ function AdminMenu() {
                   event.target.value
                 )
               }
-              className="h-12 rounded-2xl border border-[#e4d9d0] bg-[#faf7f2] px-4 text-sm font-medium text-[#5d5048] outline-none focus:border-[#8b4f2f]"
+              className="h-12 w-full rounded-2xl border border-[#e4d9d0] bg-[#faf7f2] px-4 text-[16px] font-medium text-[#5d5048] outline-none transition focus:border-[#8b4f2f] focus:bg-white focus:ring-4 focus:ring-[#8b4f2f]/[0.08] sm:text-sm"
             >
               <option value="all">
                 All Categories
               </option>
 
-              {categories.map(
-                (category) => (
-                  <option
-                    key={category}
-                    value={category}
-                  >
-                    {formatCategory(
-                      category
-                    )}
-                  </option>
-                )
-              )}
+              {categories.map((category) => (
+                <option
+                  key={category}
+                  value={category}
+                >
+                  {formatCategory(category)}
+                </option>
+              ))}
             </select>
 
             <select
@@ -965,7 +978,7 @@ function AdminMenu() {
                   event.target.value
                 )
               }
-              className="h-12 rounded-2xl border border-[#e4d9d0] bg-[#faf7f2] px-4 text-sm font-medium text-[#5d5048] outline-none focus:border-[#8b4f2f]"
+              className="h-12 w-full rounded-2xl border border-[#e4d9d0] bg-[#faf7f2] px-4 text-[16px] font-medium text-[#5d5048] outline-none transition focus:border-[#8b4f2f] focus:bg-white focus:ring-4 focus:ring-[#8b4f2f]/[0.08] sm:text-sm"
             >
               <option value="all">
                 All Status
@@ -984,7 +997,6 @@ function AdminMenu() {
             </select>
 
           </div>
-
         </div>
 
         {/* =================================================
@@ -992,15 +1004,15 @@ function AdminMenu() {
         ================================================= */}
 
         {loading ? (
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
 
             {[1, 2, 3, 4, 5, 6].map(
               (item) => (
                 <div
                   key={item}
-                  className="overflow-hidden rounded-3xl border border-[#eadfd6] bg-white"
+                  className="overflow-hidden rounded-[26px] border border-[#eadfd6] bg-white"
                 >
-                  <div className="h-52 animate-pulse bg-[#eee6df]" />
+                  <div className="aspect-[16/10] animate-pulse bg-[#eee6df]" />
 
                   <div className="space-y-3 p-5">
 
@@ -1017,7 +1029,7 @@ function AdminMenu() {
 
           </div>
         ) : filteredItems.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-[#d9ccc2] bg-white px-6 py-16 text-center">
+          <div className="rounded-[28px] border border-dashed border-[#d9ccc2] bg-white px-5 py-14 text-center shadow-sm sm:px-6 sm:py-16">
 
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#f4ebe4] text-[#8b4f2f]">
               <ChefHat size={28} />
@@ -1028,22 +1040,21 @@ function AdminMenu() {
             </h3>
 
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#81736a]">
-              Try changing your filters
-              or create your first menu
-              item.
+              Try changing your filters or create
+              your first menu item.
             </p>
 
             <button
               type="button"
               onClick={openCreateModal}
-              className="mt-6 rounded-2xl bg-[#8b4f2f] px-5 py-3 text-sm font-semibold text-white"
+              className="mt-6 rounded-2xl bg-[#8b4f2f] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-[#8b4f2f]/15 transition hover:bg-[#754126] active:scale-[0.98]"
             >
               Add Menu Item
             </button>
 
           </div>
         ) : (
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 xl:grid-cols-3">
 
             {filteredItems.map((item) => {
               const image =
@@ -1052,12 +1063,12 @@ function AdminMenu() {
               return (
                 <article
                   key={item._id}
-                  className="group overflow-hidden rounded-3xl border border-[#eadfd6] bg-white shadow-[0_8px_30px_rgba(58,36,24,0.05)] transition hover:shadow-[0_16px_40px_rgba(58,36,24,0.1)]"
+                  className="group overflow-hidden rounded-[26px] border border-[#eadfd6] bg-white shadow-[0_6px_28px_rgba(58,36,24,0.055)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(58,36,24,0.11)]"
                 >
 
                   {/* IMAGE */}
 
-                  <div className="relative h-56 overflow-hidden bg-[#f2ebe5]">
+                  <div className="relative aspect-[16/10] overflow-hidden bg-[#f2ebe5]">
 
                     {image ? (
                       <img
@@ -1069,7 +1080,7 @@ function AdminMenu() {
                         onError={
                           handleCardImageError
                         }
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center text-[#aa9b90]">
@@ -1080,17 +1091,21 @@ function AdminMenu() {
                       </div>
                     )}
 
+                    {/* Image overlay */}
+
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/25 to-transparent" />
+
                     <div className="absolute left-4 top-4">
 
                       <span
-                        className={`rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide ${
+                        className={`rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide shadow-sm backdrop-blur ${
                           item?.availability ===
                           "available"
-                            ? "bg-[#e8f0e5] text-[#52734e]"
+                            ? "bg-[#e8f0e5]/95 text-[#52734e]"
                             : item?.availability ===
                               "sold-out"
-                            ? "bg-[#f6e2dc] text-[#9b493b]"
-                            : "bg-[#f6ead7] text-[#a66e2d]"
+                            ? "bg-[#f6e2dc]/95 text-[#9b493b]"
+                            : "bg-[#f6ead7]/95 text-[#a66e2d]"
                         }`}
                       >
                         {formatCategory(
@@ -1104,13 +1119,13 @@ function AdminMenu() {
 
                   {/* CONTENT */}
 
-                  <div className="p-5">
+                  <div className="p-4 sm:p-5">
 
                     <div className="flex items-start justify-between gap-4">
 
                       <div className="min-w-0">
 
-                        <h3 className="truncate font-serif text-xl font-semibold text-[#3a2418]">
+                        <h3 className="truncate font-serif text-[19px] font-semibold leading-tight text-[#3a2418] sm:text-xl">
                           {item?.name?.en ||
                             "Untitled Item"}
                         </h3>
@@ -1131,11 +1146,11 @@ function AdminMenu() {
 
                       <div className="shrink-0 text-right">
 
-                        <span className="text-[10px] text-[#9b887b]">
+                        <span className="text-[9px] font-medium text-[#9b887b]">
                           ETB
                         </span>
 
-                        <p className="text-xl font-bold text-[#3a2418]">
+                        <p className="text-lg font-bold tracking-tight text-[#3a2418] sm:text-xl">
                           {Number(
                             item?.price || 0
                           ).toLocaleString()}
@@ -1183,50 +1198,48 @@ function AdminMenu() {
                         </div>
                       )}
 
-                    <div className="my-5 h-px bg-[#eee6df]" />
+                    {/* FOOTER */}
 
-                    <div className="flex items-center justify-between">
+                    <div className="mt-5 flex flex-col gap-3 border-t border-[#eee6df] pt-4 sm:flex-row sm:items-center sm:justify-between">
 
-                      <div className="flex items-center gap-1.5 text-xs text-[#9b887b]">
-                        <Clock3
-                          size={14}
-                        />
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-[#9b887b]">
+                        <Clock3 size={14} />
 
                         {item?.preparationTime ||
                           "—"}
                       </div>
 
-                      <div className="flex gap-2">
+                      <div className="flex w-full gap-2 sm:w-auto">
+
+                        {/* Preview */}
 
                         <button
                           type="button"
                           onClick={() =>
-                            setPreviewOpen(
-                              item
-                            )
+                            setPreviewOpen(item)
                           }
-                          className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#e4d9d0] text-[#69584e] transition hover:bg-[#f4ebe4]"
+                          className="flex h-11 flex-1 items-center justify-center rounded-xl border border-[#e4d9d0] bg-white text-[#69584e] shadow-sm transition hover:bg-[#f4ebe4] active:scale-95 sm:w-11 sm:flex-none"
                           title="Preview"
+                          aria-label="Preview menu item"
                         >
-                          <Eye
-                            size={17}
-                          />
+                          <Eye size={17} />
                         </button>
+
+                        {/* Edit */}
 
                         <button
                           type="button"
                           onClick={() =>
-                            openEditModal(
-                              item
-                            )
+                            openEditModal(item)
                           }
-                          className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#e4d9d0] text-[#8b4f2f] transition hover:bg-[#f4ebe4]"
+                          className="flex h-11 flex-1 items-center justify-center rounded-xl border border-[#e4d9d0] bg-white text-[#8b4f2f] shadow-sm transition hover:bg-[#f4ebe4] active:scale-95 sm:w-11 sm:flex-none"
                           title="Edit"
+                          aria-label="Edit menu item"
                         >
-                          <Edit3
-                            size={17}
-                          />
+                          <Edit3 size={17} />
                         </button>
+
+                        {/* Delete */}
 
                         <button
                           type="button"
@@ -1235,12 +1248,11 @@ function AdminMenu() {
                             item._id
                           }
                           onClick={() =>
-                            handleDelete(
-                              item
-                            )
+                            handleDelete(item)
                           }
-                          className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#efd6d0] text-[#a14e43] transition hover:bg-[#fff0ed] disabled:opacity-50"
+                          className="flex h-11 flex-1 items-center justify-center rounded-xl border border-[#efd6d0] bg-white text-[#a14e43] shadow-sm transition hover:bg-[#fff0ed] active:scale-95 disabled:opacity-50 sm:w-11 sm:flex-none"
                           title="Delete"
+                          aria-label="Delete menu item"
                         >
                           {deletingId ===
                           item._id ? (
@@ -1249,9 +1261,7 @@ function AdminMenu() {
                               className="animate-spin"
                             />
                           ) : (
-                            <Trash2
-                              size={17}
-                            />
+                            <Trash2 size={17} />
                           )}
                         </button>
 
@@ -1272,31 +1282,40 @@ function AdminMenu() {
         ================================================= */}
 
         {modalOpen && (
-          <div className="fixed inset-0 z-[200] flex items-end justify-center bg-[#241a15]/50 p-0 backdrop-blur-sm sm:items-center sm:p-5">
+          <div className="fixed inset-0 z-[200] flex items-end justify-center bg-[#241a15]/60 p-0 backdrop-blur-md sm:items-center sm:p-4">
 
-            <div className="flex max-h-[95vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-[30px] bg-[#faf7f2] shadow-2xl sm:rounded-[30px]">
+            <div className="flex max-h-[96dvh] w-full max-w-5xl flex-col overflow-hidden rounded-t-[28px] bg-[#faf7f2] shadow-[0_-10px_60px_rgba(36,26,21,0.2)] sm:max-h-[92vh] sm:rounded-[30px]">
+
+              {/* MOBILE HANDLE */}
+
+              <div className="flex shrink-0 justify-center bg-white pt-2 sm:hidden">
+                <div className="h-1 w-10 rounded-full bg-[#d8ccc3]" />
+              </div>
 
               {/* HEADER */}
 
-              <div className="flex shrink-0 items-center justify-between border-b border-[#eadfd6] bg-white px-5 py-4 sm:px-7">
+              <div className="flex shrink-0 items-center justify-between border-b border-[#eadfd6] bg-white px-4 py-3.5 sm:px-7 sm:py-4">
 
-                <div>
+                <div className="min-w-0">
+
                   <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#a27a60]">
                     Menu Management
                   </p>
 
-                  <h2 className="font-serif text-2xl font-semibold text-[#3a2418]">
+                  <h2 className="font-serif text-xl font-semibold text-[#3a2418] sm:text-2xl">
                     {editingItem
                       ? "Edit Menu Item"
                       : "Add Menu Item"}
                   </h2>
+
                 </div>
 
                 <button
                   type="button"
                   onClick={closeModal}
                   disabled={saving}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f4ebe4] text-[#5d5048] transition hover:bg-[#eadfd6] disabled:opacity-50"
+                  className="ml-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f4ebe4] text-[#5d5048] transition hover:bg-[#eadfd6] active:scale-95 disabled:opacity-50"
+                  aria-label="Close modal"
                 >
                   <X size={19} />
                 </button>
@@ -1307,12 +1326,14 @@ function AdminMenu() {
 
               <form
                 onSubmit={handleSubmit}
-                className="overflow-y-auto"
+                className="min-h-0 overflow-y-auto overscroll-contain"
               >
 
-                <div className="grid gap-7 p-5 sm:p-7 lg:grid-cols-[1fr_340px]">
+                <div className="grid gap-5 p-4 sm:gap-7 sm:p-7 lg:grid-cols-[minmax(0,1fr)_340px]">
 
-                  {/* LEFT */}
+                  {/* =================================================
+                      LEFT
+                  ================================================= */}
 
                   <div className="space-y-7">
 
@@ -1390,8 +1411,7 @@ function AdminMenu() {
                         <LocalizedTextarea
                           label="English"
                           value={
-                            form.description
-                              .en
+                            form.description.en
                           }
                           onChange={(value) =>
                             updateLocalizedField(
@@ -1406,8 +1426,7 @@ function AdminMenu() {
                         <LocalizedTextarea
                           label="አማርኛ"
                           value={
-                            form.description
-                              .am
+                            form.description.am
                           }
                           onChange={(value) =>
                             updateLocalizedField(
@@ -1422,8 +1441,7 @@ function AdminMenu() {
                         <LocalizedTextarea
                           label="Afaan Oromoo"
                           value={
-                            form.description
-                              .om
+                            form.description.om
                           }
                           onChange={(value) =>
                             updateLocalizedField(
@@ -1454,8 +1472,7 @@ function AdminMenu() {
                         <LocalizedTextarea
                           label="English"
                           value={
-                            form.ingredients
-                              .en
+                            form.ingredients.en
                           }
                           onChange={(value) =>
                             updateLocalizedField(
@@ -1470,8 +1487,7 @@ function AdminMenu() {
                         <LocalizedTextarea
                           label="አማርኛ"
                           value={
-                            form.ingredients
-                              .am
+                            form.ingredients.am
                           }
                           onChange={(value) =>
                             updateLocalizedField(
@@ -1486,8 +1502,7 @@ function AdminMenu() {
                         <LocalizedTextarea
                           label="Afaan Oromoo"
                           value={
-                            form.ingredients
-                              .om
+                            form.ingredients.om
                           }
                           onChange={(value) =>
                             updateLocalizedField(
@@ -1523,14 +1538,11 @@ function AdminMenu() {
                             onChange={(event) =>
                               updateField(
                                 "price",
-                                event.target
-                                  .value
+                                event.target.value
                               )
                             }
                             placeholder="0.00"
-                            className={
-                              inputClass
-                            }
+                            className={inputClass}
                             required
                           />
                         </Field>
@@ -1543,25 +1555,16 @@ function AdminMenu() {
                             onChange={(event) =>
                               updateField(
                                 "category",
-                                event.target
-                                  .value
+                                event.target.value
                               )
                             }
-                            className={
-                              inputClass
-                            }
+                            className={inputClass}
                           >
                             {categories.map(
-                              (
-                                category
-                              ) => (
+                              (category) => (
                                 <option
-                                  key={
-                                    category
-                                  }
-                                  value={
-                                    category
-                                  }
+                                  key={category}
+                                  value={category}
                                 >
                                   {formatCategory(
                                     category
@@ -1580,18 +1583,13 @@ function AdminMenu() {
                             onChange={(event) =>
                               updateField(
                                 "availability",
-                                event.target
-                                  .value
+                                event.target.value
                               )
                             }
-                            className={
-                              inputClass
-                            }
+                            className={inputClass}
                           >
                             {availabilityOptions.map(
-                              (
-                                option
-                              ) => (
+                              (option) => (
                                 <option
                                   key={
                                     option.value
@@ -1600,9 +1598,7 @@ function AdminMenu() {
                                     option.value
                                   }
                                 >
-                                  {
-                                    option.label
-                                  }
+                                  {option.label}
                                 </option>
                               )
                             )}
@@ -1618,14 +1614,11 @@ function AdminMenu() {
                             onChange={(event) =>
                               updateField(
                                 "preparationTime",
-                                event.target
-                                  .value
+                                event.target.value
                               )
                             }
                             placeholder="e.g. 10 min"
-                            className={
-                              inputClass
-                            }
+                            className={inputClass}
                           />
                         </Field>
 
@@ -1639,14 +1632,11 @@ function AdminMenu() {
                             onChange={(event) =>
                               updateField(
                                 "sortOrder",
-                                event.target
-                                  .value
+                                event.target.value
                               )
                             }
                             placeholder="0"
-                            className={
-                              inputClass
-                            }
+                            className={inputClass}
                           />
                         </Field>
 
@@ -1666,43 +1656,37 @@ function AdminMenu() {
 
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
 
-                        {tagOptions.map(
-                          (tag) => {
-                            const active =
-                              form.tags.includes(
-                                tag.value
-                              );
-
-                            return (
-                              <button
-                                key={
-                                  tag.value
-                                }
-                                type="button"
-                                onClick={() =>
-                                  toggleTag(
-                                    tag.value
-                                  )
-                                }
-                                className={`flex items-center justify-between rounded-xl border px-3 py-3 text-left text-xs font-semibold transition ${
-                                  active
-                                    ? "border-[#8b4f2f] bg-[#8b4f2f] text-white"
-                                    : "border-[#e4d9d0] bg-white text-[#69584e] hover:bg-[#f4ebe4]"
-                                }`}
-                              >
-                                {tag.label}
-
-                                {active && (
-                                  <Check
-                                    size={
-                                      14
-                                    }
-                                  />
-                                )}
-                              </button>
+                        {tagOptions.map((tag) => {
+                          const active =
+                            form.tags.includes(
+                              tag.value
                             );
-                          }
-                        )}
+
+                          return (
+                            <button
+                              key={tag.value}
+                              type="button"
+                              onClick={() =>
+                                toggleTag(
+                                  tag.value
+                                )
+                              }
+                              className={`flex min-h-12 items-center justify-between rounded-xl border px-3 py-3 text-left text-xs font-semibold transition active:scale-[0.98] ${
+                                active
+                                  ? "border-[#8b4f2f] bg-[#8b4f2f] text-white shadow-sm"
+                                  : "border-[#e4d9d0] bg-white text-[#69584e] hover:bg-[#f4ebe4]"
+                              }`}
+                            >
+                              {tag.label}
+
+                              {active && (
+                                <Check
+                                  size={14}
+                                />
+                              )}
+                            </button>
+                          );
+                        })}
 
                       </div>
 
@@ -1710,15 +1694,17 @@ function AdminMenu() {
 
                   </div>
 
-                  {/* RIGHT */}
+                  {/* =================================================
+                      RIGHT
+                  ================================================= */}
 
                   <div>
 
-                    <div className="sticky top-0">
+                    <div className="lg:sticky lg:top-0">
 
                       {/* IMAGE */}
 
-                      <section className="rounded-3xl border border-[#eadfd6] bg-white p-5">
+                      <section className="rounded-[26px] border border-[#eadfd6] bg-white p-4 shadow-sm sm:p-5">
 
                         <SectionTitle
                           number="06"
@@ -1736,7 +1722,7 @@ function AdminMenu() {
                                 "url"
                               )
                             }
-                            className={`flex items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-semibold transition ${
+                            className={`flex min-h-11 items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-semibold transition ${
                               imageMode ===
                               "url"
                                 ? "bg-white text-[#8b4f2f] shadow-sm"
@@ -1757,7 +1743,7 @@ function AdminMenu() {
                                 "device"
                               )
                             }
-                            className={`flex items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-semibold transition ${
+                            className={`flex min-h-11 items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-semibold transition ${
                               imageMode ===
                               "device"
                                 ? "bg-white text-[#8b4f2f] shadow-sm"
@@ -1775,8 +1761,7 @@ function AdminMenu() {
 
                         {/* URL */}
 
-                        {imageMode ===
-                          "url" && (
+                        {imageMode === "url" && (
                           <div>
 
                             <label className="mb-2 block text-xs font-semibold text-[#69584e]">
@@ -1801,8 +1786,7 @@ function AdminMenu() {
                                 }
                                 onChange={(event) =>
                                   handleImageUrlChange(
-                                    event.target
-                                      .value
+                                    event.target.value
                                   )
                                 }
                                 placeholder="https://example.com/image.jpg"
@@ -1821,14 +1805,11 @@ function AdminMenu() {
 
                         {/* DEVICE */}
 
-                        {imageMode ===
-                          "device" && (
+                        {imageMode === "device" && (
                           <div>
 
                             <input
-                              ref={
-                                fileInputRef
-                              }
+                              ref={fileInputRef}
                               type="file"
                               accept="image/jpeg,image/png,image/webp,image/gif"
                               onChange={
@@ -1842,7 +1823,7 @@ function AdminMenu() {
                               onClick={() =>
                                 fileInputRef.current?.click()
                               }
-                              className="flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#d9ccc2] bg-[#faf7f2] px-5 py-8 text-center transition hover:border-[#8b4f2f] hover:bg-[#f7efe8]"
+                              className="flex w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#d9ccc2] bg-[#faf7f2] px-5 py-8 text-center transition hover:border-[#8b4f2f] hover:bg-[#f7efe8] active:scale-[0.99]"
                             >
                               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#efe3da] text-[#8b4f2f]">
                                 <Upload
@@ -1863,11 +1844,13 @@ function AdminMenu() {
                             </button>
 
                             {imageFile && (
-                              <div className="mt-3 rounded-xl bg-[#f1f7ef] px-3 py-2 text-xs text-[#52734e]">
-                                Selected:{" "}
-                                {
-                                  imageFile.name
-                                }
+                              <div className="mt-3 overflow-hidden rounded-xl bg-[#f1f7ef] px-3 py-2 text-xs text-[#52734e]">
+                                <span className="font-semibold">
+                                  Selected:
+                                </span>{" "}
+                                <span className="break-all">
+                                  {imageFile.name}
+                                </span>
                               </div>
                             )}
 
@@ -1904,14 +1887,11 @@ function AdminMenu() {
                               <div className="flex h-full flex-col items-center justify-center text-[#aa9b90]">
                                 <ImageIcon
                                   size={35}
-                                  strokeWidth={
-                                    1.2
-                                  }
+                                  strokeWidth={1.2}
                                 />
 
                                 <p className="mt-2 text-xs">
-                                  No image
-                                  selected
+                                  No image selected
                                 </p>
                               </div>
                             )}
@@ -1924,13 +1904,11 @@ function AdminMenu() {
 
                       {/* INFO */}
 
-                      <div className="mt-4 rounded-2xl bg-[#3a2418] p-5 text-white">
+                      <div className="mt-4 rounded-[22px] bg-[#3a2418] p-5 text-white shadow-lg">
 
                         <div className="flex items-center gap-2">
 
-                          <ImageIcon
-                            size={17}
-                          />
+                          <ImageIcon size={17} />
 
                           <p className="text-sm font-semibold">
                             Image tip
@@ -1939,10 +1917,9 @@ function AdminMenu() {
                         </div>
 
                         <p className="mt-2 text-xs leading-5 text-white/65">
-                          Use a high-quality
-                          landscape image for
-                          the best appearance on
-                          the customer menu.
+                          Use a high-quality landscape
+                          image for the best appearance
+                          on the customer menu.
                         </p>
 
                       </div>
@@ -1953,15 +1930,17 @@ function AdminMenu() {
 
                 </div>
 
-                {/* FOOTER */}
+                {/* =================================================
+                    FOOTER
+                ================================================= */}
 
-                <div className="sticky bottom-0 flex flex-col-reverse gap-3 border-t border-[#eadfd6] bg-white p-5 sm:flex-row sm:justify-end sm:px-7">
+                <div className="sticky bottom-0 z-20 flex flex-col gap-2.5 border-t border-[#eadfd6] bg-white/95 p-3.5 shadow-[0_-8px_25px_rgba(58,36,24,0.06)] backdrop-blur sm:flex-row sm:justify-end sm:p-5 sm:px-7">
 
                   <button
                     type="button"
                     onClick={closeModal}
                     disabled={saving}
-                    className="h-12 rounded-2xl border border-[#dfd2c8] px-6 text-sm font-semibold text-[#69584e] transition hover:bg-[#f4ebe4] disabled:opacity-50"
+                    className="h-12 w-full rounded-2xl border border-[#dfd2c8] bg-white px-6 text-sm font-semibold text-[#69584e] transition hover:bg-[#f4ebe4] active:scale-[0.99] disabled:opacity-50 sm:w-auto"
                   >
                     Cancel
                   </button>
@@ -1969,7 +1948,7 @@ function AdminMenu() {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#8b4f2f] px-7 text-sm font-semibold text-white shadow-lg shadow-[#8b4f2f]/15 transition hover:bg-[#754126] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#8b4f2f] px-7 text-sm font-semibold text-white shadow-[0_8px_22px_rgba(139,79,47,0.2)] transition hover:bg-[#754126] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                   >
                     {saving ? (
                       <>
@@ -2005,11 +1984,19 @@ function AdminMenu() {
         ================================================= */}
 
         {previewOpen && (
-          <div className="fixed inset-0 z-[250] flex items-center justify-center bg-[#241a15]/60 p-5 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[250] flex items-end justify-center bg-[#241a15]/65 p-0 backdrop-blur-md sm:items-center sm:p-4">
 
-            <div className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-[30px] bg-[#faf7f2] shadow-2xl">
+            <div className="max-h-[94dvh] w-full max-w-xl overflow-y-auto rounded-t-[28px] bg-[#faf7f2] shadow-2xl sm:max-h-[92vh] sm:rounded-[30px]">
 
-              <div className="relative h-72 sm:h-96">
+              {/* MOBILE HANDLE */}
+
+              <div className="flex justify-center bg-white pt-2 sm:hidden">
+                <div className="h-1 w-10 rounded-full bg-[#d8ccc3]" />
+              </div>
+
+              {/* IMAGE */}
+
+              <div className="relative aspect-[4/3] w-full bg-[#eee6df] sm:aspect-auto sm:h-96">
 
                 {previewOpen.image ? (
                   <img
@@ -2024,30 +2011,33 @@ function AdminMenu() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center bg-[#eee6df] text-[#9b887b]">
-                    <ImageIcon
-                      size={45}
-                    />
+                  <div className="flex h-full items-center justify-center text-[#9b887b]">
+                    <ImageIcon size={45} />
                   </div>
                 )}
+
+                <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/30 to-transparent" />
 
                 <button
                   type="button"
                   onClick={() =>
                     setPreviewOpen(null)
                   }
-                  className="absolute right-5 top-5 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-[#3a2418] shadow-lg backdrop-blur"
+                  className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-[#3a2418] shadow-lg backdrop-blur transition hover:bg-white active:scale-95 sm:right-5 sm:top-5"
+                  aria-label="Close preview"
                 >
                   <X size={20} />
                 </button>
 
               </div>
 
-              <div className="p-6 sm:p-8">
+              {/* CONTENT */}
 
-                <div className="flex items-start justify-between gap-5">
+              <div className="p-5 sm:p-8">
 
-                  <div>
+                <div className="flex items-start justify-between gap-4">
+
+                  <div className="min-w-0">
 
                     <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#a27a60]">
                       {formatCategory(
@@ -2055,25 +2045,27 @@ function AdminMenu() {
                       )}
                     </p>
 
-                    <h2 className="mt-1 font-serif text-3xl font-semibold text-[#3a2418]">
-                      {
-                        previewOpen
-                          ?.name?.en
-                      }
+                    <h2 className="mt-1 font-serif text-2xl font-semibold leading-tight text-[#3a2418] sm:text-3xl">
+                      {previewOpen?.name?.en}
                     </h2>
+
+                    {previewOpen?.name?.am && (
+                      <p className="mt-1 text-xs text-[#9b887b]">
+                        {previewOpen.name.am}
+                      </p>
+                    )}
 
                   </div>
 
-                  <div className="text-right">
+                  <div className="shrink-0 text-right">
 
-                    <span className="text-[10px] text-[#9b887b]">
+                    <span className="text-[10px] font-medium text-[#9b887b]">
                       ETB
                     </span>
 
-                    <p className="text-2xl font-bold text-[#3a2418]">
+                    <p className="text-xl font-bold text-[#3a2418] sm:text-2xl">
                       {Number(
-                        previewOpen.price ||
-                          0
+                        previewOpen.price || 0
                       ).toLocaleString()}
                     </p>
 
@@ -2090,13 +2082,13 @@ function AdminMenu() {
 
                 {previewOpen?.ingredients
                   ?.en && (
-                  <div className="mt-5 rounded-2xl bg-white p-4">
+                  <div className="mt-5 rounded-2xl bg-white p-4 shadow-sm">
 
                     <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#8b4f2f]">
                       Ingredients
                     </p>
 
-                    <p className="mt-2 text-sm text-[#665a52]">
+                    <p className="mt-2 text-sm leading-5 text-[#665a52]">
                       {
                         previewOpen
                           .ingredients
@@ -2110,8 +2102,7 @@ function AdminMenu() {
                 {Array.isArray(
                   previewOpen.tags
                 ) &&
-                  previewOpen.tags.length >
-                    0 && (
+                  previewOpen.tags.length > 0 && (
                     <div className="mt-6 flex flex-wrap gap-2">
 
                       {previewOpen.tags.map(
@@ -2120,9 +2111,7 @@ function AdminMenu() {
                             key={tag}
                             className="rounded-full bg-[#efe7dd] px-3 py-1.5 text-xs font-semibold text-[#69584e]"
                           >
-                            {formatTag(
-                              tag
-                            )}
+                            {formatTag(tag)}
                           </span>
                         )
                       )}
@@ -2131,7 +2120,7 @@ function AdminMenu() {
                   )}
 
                 {previewOpen.preparationTime && (
-                  <div className="mt-5 flex items-center gap-2 text-xs text-[#81736a]">
+                  <div className="mt-5 flex items-center gap-2 text-xs font-medium text-[#81736a]">
 
                     <Clock3 size={15} />
 
@@ -2147,7 +2136,7 @@ function AdminMenu() {
                   onClick={() =>
                     setPreviewOpen(null)
                   }
-                  className="mt-7 w-full rounded-2xl bg-[#8b4f2f] py-3.5 text-sm font-semibold text-white"
+                  className="mt-7 h-12 w-full rounded-2xl bg-[#8b4f2f] text-sm font-semibold text-white shadow-lg shadow-[#8b4f2f]/15 transition hover:bg-[#754126] active:scale-[0.99]"
                 >
                   Close Preview
                 </button>
@@ -2174,16 +2163,24 @@ function StatCard({
   valueClass,
 }) {
   return (
-    <div className="rounded-2xl border border-[#eadfd6] bg-white p-5">
-      <p className="text-xs font-medium text-[#9b887b]">
+    <div className="group relative overflow-hidden rounded-[22px] border border-[#eadfd6] bg-white p-4 shadow-[0_6px_24px_rgba(58,36,24,0.04)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(58,36,24,0.08)] sm:p-5">
+
+      <div className="absolute -right-6 -top-6 h-16 w-16 rounded-full bg-[#8b4f2f]/[0.035] transition group-hover:scale-150" />
+
+      <p className="relative text-[10px] font-bold uppercase tracking-[0.1em] text-[#9b887b] sm:text-xs">
         {label}
       </p>
 
       <p
-        className={`mt-2 text-2xl font-bold ${valueClass}`}
+        className={`relative mt-1.5 text-2xl font-bold tracking-tight sm:mt-2 sm:text-3xl ${valueClass}`}
       >
         {value}
       </p>
+
+      <div className="relative mt-3 h-1 w-8 overflow-hidden rounded-full bg-[#eee4dc]">
+        <div className="h-full w-2/3 rounded-full bg-[#8b4f2f]/60" />
+      </div>
+
     </div>
   );
 }
@@ -2200,21 +2197,25 @@ function SectionTitle({
   return (
     <div className="mb-4 flex items-center gap-3">
 
-      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#8b4f2f] text-[10px] font-bold text-white">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#8b4f2f] text-[10px] font-bold text-white shadow-sm">
         {number}
       </span>
 
-      <div className="flex items-center gap-2">
+      <div className="min-w-0">
 
-        <h3 className="font-serif text-lg font-semibold text-[#3a2418]">
-          {title}
-        </h3>
+        <div className="flex flex-wrap items-center gap-2">
 
-        {optional && (
-          <span className="text-[10px] font-medium text-[#a5968b]">
-            Optional
-          </span>
-        )}
+          <h3 className="font-serif text-lg font-semibold text-[#3a2418]">
+            {title}
+          </h3>
+
+          {optional && (
+            <span className="rounded-full bg-[#f4ebe4] px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-[#a5968b]">
+              Optional
+            </span>
+          )}
+
+        </div>
 
       </div>
 
@@ -2253,8 +2254,14 @@ function LocalizedInput({
   return (
     <label className="block">
 
-      <span className="mb-2 block text-xs font-semibold text-[#69584e]">
-        {label}
+      <span className="mb-2 flex items-center justify-between text-xs font-semibold text-[#69584e]">
+
+        <span>{label}</span>
+
+        <span className="text-[10px] font-medium text-[#b1a198]">
+          Required
+        </span>
+
       </span>
 
       <input
@@ -2295,7 +2302,7 @@ function LocalizedTextarea({
         }
         placeholder={placeholder}
         rows={3}
-        className={`${inputClass} resize-none`}
+        className={`${inputClass} resize-none leading-6`}
       />
 
     </label>
@@ -2307,6 +2314,6 @@ function LocalizedTextarea({
 ========================================================= */
 
 const inputClass =
-  "w-full rounded-2xl border border-[#e4d9d0] bg-white px-4 py-3.5 text-sm text-[#3a2418] outline-none transition placeholder:text-[#aa9b90] focus:border-[#8b4f2f] focus:ring-2 focus:ring-[#8b4f2f]/10";
+  "w-full min-h-12 rounded-2xl border border-[#e4d9d0] bg-white px-4 py-3.5 text-[16px] text-[#3a2418] outline-none transition placeholder:text-[#aa9b90] focus:border-[#8b4f2f] focus:bg-white focus:ring-4 focus:ring-[#8b4f2f]/[0.08] sm:text-sm";
 
 export default AdminMenu;
