@@ -10,7 +10,7 @@ import FilterPanel from "../components/FilterPanel";
 
 import { useLanguage } from "../context/LanguageContext";
 import { getMenuItems } from "../services/api";
-
+import LanguageBar from "../components/LanguageBar";
 /* =========================================================
    VISUAL SYSTEM
    Ethiopian coffee-house / menu board look
@@ -630,7 +630,7 @@ function SectionLabel({
       <span className="hidden shrink-0 text-[#C89550] sm:block">
         ⁘
       </span>
-
+ <LanguageBar />
     </div>
   );
 }

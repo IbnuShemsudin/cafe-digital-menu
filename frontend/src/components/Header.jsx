@@ -1,61 +1,19 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+
 import {
   Coffee,
   Menu,
   X,
   LogIn,
   UserPlus,
-  Globe2,
-  ChevronDown,
 } from "lucide-react";
-
-import { useLanguage } from "../context/LanguageContext";
 
 function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [languageOpen, setLanguageOpen] = useState(false);
-
-  const {
-    language,
-    changeLanguage,
-  } = useLanguage();
 
   const closeMobileMenu = () => {
     setMobileOpen(false);
-    setLanguageOpen(false);
-  };
-
-  /* =========================================================
-     LANGUAGES
-  ========================================================= */
-
-  const languages = [
-    {
-      code: "en",
-      label: "English",
-      short: "EN",
-    },
-    {
-      code: "am",
-      label: "አማርኛ",
-      short: "አማ",
-    },
-    {
-      code: "om",
-      label: "Afaan Oromoo",
-      short: "OM",
-    },
-  ];
-
-  const currentLanguage =
-    languages.find(
-      (item) => item.code === language
-    ) || languages[0];
-
-  const handleLanguageChange = (code) => {
-    changeLanguage(code);
-    setLanguageOpen(false);
   };
 
   return (
@@ -96,78 +54,7 @@ function Header() {
 
         <nav className="hidden items-center gap-3 sm:flex">
 
-          {/* =================================================
-              LANGUAGE PICKER
-          ================================================= */}
-
-          <div className="relative">
-
-            <button
-              type="button"
-              onClick={() =>
-                setLanguageOpen(!languageOpen)
-              }
-              className="flex items-center gap-2 rounded-[3px] border border-[#E4D3BE] bg-white/60 px-3.5 py-2.5 text-sm font-medium text-[#3A281F] transition hover:border-[#B5502D]/50 hover:bg-white"
-            >
-              <Globe2
-                size={16}
-                className="text-[#B5502D]"
-              />
-
-              <span>
-                {currentLanguage.short}
-              </span>
-
-              <ChevronDown
-                size={15}
-                className={`transition-transform ${
-                  languageOpen
-                    ? "rotate-180"
-                    : ""
-                }`}
-              />
-            </button>
-
-            {/* LANGUAGE DROPDOWN */}
-
-            {languageOpen && (
-              <div className="absolute right-0 top-full z-50 mt-2 w-48 overflow-hidden rounded-xl border border-[#E4D3BE] bg-white p-1.5 shadow-xl">
-
-                {languages.map((item) => (
-                  <button
-                    key={item.code}
-                    type="button"
-                    onClick={() =>
-                      handleLanguageChange(
-                        item.code
-                      )
-                    }
-                    className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm transition ${
-                      language === item.code
-                        ? "bg-[#B5502D]/10 font-semibold text-[#B5502D]"
-                        : "text-[#3A281F] hover:bg-[#FBF3E7]"
-                    }`}
-                  >
-                    <span>
-                      {item.label}
-                    </span>
-
-                    {language === item.code && (
-                      <span className="text-xs">
-                        ✓
-                      </span>
-                    )}
-                  </button>
-                ))}
-
-              </div>
-            )}
-
-          </div>
-
-          {/* =================================================
-              ADMIN LOGIN
-          ================================================= */}
+          {/* ADMIN LOGIN */}
 
           <NavLink
             to="/admin/login"
@@ -186,9 +73,7 @@ function Header() {
             </span>
           </NavLink>
 
-          {/* =================================================
-              REGISTER
-          ================================================= */}
+          {/* REGISTER */}
 
           <NavLink
             to="/admin/register"
@@ -215,9 +100,7 @@ function Header() {
 
         <button
           type="button"
-          onClick={() =>
-            setMobileOpen(!mobileOpen)
-          }
+          onClick={() => setMobileOpen(!mobileOpen)}
           aria-label={
             mobileOpen
               ? "Close navigation"
@@ -259,49 +142,7 @@ function Header() {
               Home
             </NavLink>
 
-            {/* =================================================
-                MOBILE LANGUAGE
-            ================================================= */}
-
-            <div className="rounded-[3px] border border-[#E4D3BE] bg-white/60 p-2">
-
-              <div className="mb-2 flex items-center gap-2 px-2 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#8B6F5A]">
-                <Globe2
-                  size={15}
-                  className="text-[#B5502D]"
-                />
-
-                Language
-              </div>
-
-              <div className="grid grid-cols-3 gap-1.5">
-
-                {languages.map((item) => (
-                  <button
-                    key={item.code}
-                    type="button"
-                    onClick={() =>
-                      handleLanguageChange(
-                        item.code
-                      )
-                    }
-                    className={`rounded-[3px] px-2 py-2.5 text-xs font-medium transition ${
-                      language === item.code
-                        ? "bg-[#B5502D] text-white"
-                        : "bg-[#FBF3E7] text-[#3A281F] hover:bg-[#E9D9C8]"
-                    }`}
-                  >
-                    {item.short}
-                  </button>
-                ))}
-
-              </div>
-
-            </div>
-
-            {/* =================================================
-                ADMIN LOGIN
-            ================================================= */}
+            {/* ADMIN LOGIN */}
 
             <NavLink
               to="/admin/login"
@@ -319,9 +160,7 @@ function Header() {
               Admin Login
             </NavLink>
 
-            {/* =================================================
-                REGISTER
-            ================================================= */}
+            {/* REGISTER */}
 
             <NavLink
               to="/admin/register"
